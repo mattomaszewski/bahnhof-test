@@ -328,6 +328,7 @@
             align-items: center;
             gap: 20px;
             min-height: 80px;
+            cursor: pointer;
         }
         
         .departure-item:hover {
@@ -362,6 +363,10 @@
             background: #2196f3;
         }
         
+        .line-badge.long-distance {
+            background: #dc143c;
+        }
+        
         .line-badge.metro {
             background: #1976d2;
         }
@@ -372,6 +377,10 @@
         
         .line-badge.bus {
             background: #9c27b0;
+        }
+        
+        .line-badge.ferry {
+            background: #00bcd4;
         }
         
         .destination-info {
@@ -461,6 +470,209 @@
             font-size: 0.9rem;
             border-top: 1px solid #ffffff40;
             flex-shrink: 0;
+        }
+        
+        .journey-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 80, 0.95);
+            backdrop-filter: blur(10px);
+            display: none;
+            z-index: 10000;
+            overflow-y: auto;
+        }
+        
+        .journey-modal {
+            max-width: 800px;
+            margin: 40px auto;
+            background: #000050;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            position: relative;
+        }
+        
+        .journey-header {
+            padding: 30px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .journey-title {
+            flex: 1;
+        }
+        
+        .journey-line {
+            font-size: 1.5rem;
+            font-weight: 400;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .journey-route {
+            font-size: 1.8rem;
+            font-weight: 300;
+            opacity: 0.9;
+        }
+        
+        .journey-close {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 300;
+            transition: all 0.2s ease;
+        }
+        
+        .journey-close:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .journey-content {
+            padding: 0;
+        }
+        
+        .journey-stops {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .journey-stop {
+            display: flex;
+            align-items: center;
+            padding: 20px 30px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            transition: background 0.2s ease;
+        }
+        
+        .journey-stop:hover {
+            background: rgba(255, 255, 255, 0.03);
+        }
+        
+        .journey-stop.current {
+            background: rgba(76, 175, 80, 0.1);
+            border-left: 4px solid #4caf50;
+        }
+        
+        .journey-stop.passed {
+            opacity: 0.6;
+        }
+        
+        .journey-stop.cancelled {
+            opacity: 0.4;
+            text-decoration: line-through;
+        }
+        
+        .journey-stop-indicator {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            border: 3px solid #000050;
+            position: relative;
+            margin-right: 20px;
+            flex-shrink: 0;
+        }
+        
+        .journey-stop.current .journey-stop-indicator {
+            background: #4caf50;
+            box-shadow: 0 0 15px rgba(76, 175, 80, 0.5);
+        }
+        
+        .journey-stop.passed .journey-stop-indicator {
+            background: rgba(255, 255, 255, 0.6);
+        }
+        
+        .journey-stop-connector {
+            position: absolute;
+            left: 37px;
+            top: 36px;
+            width: 2px;
+            height: calc(100% - 16px);
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        .journey-stop:last-child .journey-stop-connector {
+            display: none;
+        }
+        
+        .journey-stop.current .journey-stop-connector {
+            background: #4caf50;
+            box-shadow: 0 0 10px rgba(76, 175, 80, 0.3);
+        }
+        
+        .journey-stop-info {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .journey-stop-name {
+            font-size: 1.4rem;
+            font-weight: 400;
+            margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .journey-stop-platform {
+            font-size: 1rem;
+            opacity: 0.7;
+        }
+        
+        .journey-stop-times {
+            text-align: right;
+            flex-shrink: 0;
+            margin-left: 20px;
+        }
+        
+        .journey-stop-time {
+            font-size: 1.3rem;
+            font-weight: 300;
+            margin-bottom: 4px;
+        }
+        
+        .journey-stop-delay {
+            font-size: 0.9rem;
+        }
+        
+        .journey-stop-delay.on-time {
+            color: #4caf50;
+        }
+        
+        .journey-stop-delay.delayed {
+            color: #ff5722;
+            font-weight: 500;
+        }
+        
+        .journey-loading {
+            text-align: center;
+            padding: 60px 30px;
+            font-size: 1.2rem;
+            opacity: 0.8;
+        }
+        
+        .journey-error {
+            text-align: center;
+            padding: 60px 30px;
+            font-size: 1.2rem;
+            color: #ff5722;
         }
         
         .loading {
@@ -624,6 +836,39 @@
                 padding: 15px;
                 font-size: 1rem;
             }
+            
+            .journey-modal {
+                margin: 20px;
+                max-width: none;
+            }
+            
+            .journey-header {
+                padding: 20px;
+            }
+            
+            .journey-line {
+                font-size: 1.2rem;
+            }
+            
+            .journey-route {
+                font-size: 1.4rem;
+            }
+            
+            .journey-stop {
+                padding: 15px 20px;
+            }
+            
+            .journey-stop-name {
+                font-size: 1.2rem;
+            }
+            
+            .journey-stop-time {
+                font-size: 1.1rem;
+            }
+            
+            .journey-stop-connector {
+                left: 27px;
+            }
         }
     </style>
 </head>
@@ -726,84 +971,59 @@
         <div class="last-update" id="lastUpdate"></div>
     </div>
 
+    <!-- Journey Progress Overlay -->
+    <div class="journey-overlay" id="journeyOverlay">
+        <div class="journey-modal">
+            <div class="journey-header">
+                <div class="journey-title">
+                    <div class="journey-line" id="journeyLine">
+                        <div class="line-badge" id="journeyLineBadge">S1</div>
+                        <span id="journeyLineText">S1</span>
+                    </div>
+                    <div class="journey-route" id="journeyRoute">Berlin Hbf → Wannsee</div>
+                </div>
+                <button class="journey-close" onclick="closeJourneyOverlay()" aria-label="Schließen">&times;</button>
+            </div>
+            <div class="journey-content" id="journeyContent">
+                <div class="journey-loading">
+                    <div class="loading"></div>
+                    <div style="margin-top: 15px;">Lade Fahrtverlauf...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
-        // Local storage key for user preferences
-        const STORAGE_KEY = 'train-board-preferences';
-        
-        // Default preferences
-        const defaultPreferences = {
-            selectedStation: null,
-            selectedStationName: 'Berlin Hbf',
-            currentMode: 'departures',
-            isAutoRefreshOn: false,
-            transportFilter: {
-                's-bahn': true,
-                'regional': true,
-                'long-distance': true,
-                'metro': true,
-                'tram': true,
-                'bus': true,
-                'ferry': true
-            }
-        };
-        
-        // Load preferences from local storage
-        function loadPreferences() {
-            try {
-                const stored = localStorage.getItem(STORAGE_KEY);
-                if (stored) {
-                    const parsed = JSON.parse(stored);
-                    // Merge with defaults to ensure all properties exist
-                    return { ...defaultPreferences, ...parsed };
-                }
-            } catch (error) {
-                console.warn('Error loading preferences from localStorage:', error);
-            }
-            return { ...defaultPreferences };
-        }
-        
-        // Save preferences to local storage
-        function savePreferences() {
-            try {
-                const preferences = {
-                    selectedStation: userPreferences.selectedStation,
-                    selectedStationName: userPreferences.selectedStationName,
-                    currentMode: currentMode,
-                    isAutoRefreshOn: isAutoRefreshOn,
-                    transportFilter: { ...transportFilter }
-                };
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(preferences));
-                console.log('Preferences saved:', preferences);
-            } catch (error) {
-                console.warn('Error saving preferences to localStorage:', error);
-            }
-        }
-        
-        // Initialize preferences from storage
-        const savedPreferences = loadPreferences();
-        
-        // User preferences (restored from storage)
+        // User preferences (in-memory storage instead of localStorage)
         let userPreferences = {
-            selectedStation: savedPreferences.selectedStation,
-            selectedStationName: savedPreferences.selectedStationName
+            selectedStation: null,
+            selectedStationName: 'Berlin Hbf'
         };
         
-        // Transport filter settings (restored from storage)
-        let transportFilter = { ...savedPreferences.transportFilter };
+        // Transport filter settings
+        let transportFilter = {
+            's-bahn': true,
+            'regional': true,
+            'long-distance': true,
+            'metro': true,
+            'tram': true,
+            'bus': true,
+            'ferry': true
+        };
         
         const searchInput = document.getElementById('stationSearch');
         const suggestionsBox = document.getElementById('stationSuggestions');
 
         let searchTimeout = null;
         let autoRefreshInterval = null;
-        let isAutoRefreshOn = savedPreferences.isAutoRefreshOn;
+        let isAutoRefreshOn = false;
         let currentData = [];
         let isLoading = false;
         let hasMoreData = true;
         let currentStationId = userPreferences.selectedStation;
-        let currentMode = savedPreferences.currentMode;
+        let currentMode = 'departures';
 
-        // Initialize with saved station
+        // Initialize with default station
         searchInput.value = userPreferences.selectedStationName;
 
         // Add click-to-reset functionality for search input
@@ -836,7 +1056,6 @@
                             currentStationId = station.id;
                             searchInput.value = station.name;
                             suggestionsBox.style.display = 'none';
-                            savePreferences(); // Save when station changes
                             refreshData();
                         });
                         suggestionsBox.appendChild(option);
@@ -888,8 +1107,6 @@
                 checkbox.classList.remove('checked');
             }
             
-            savePreferences(); // Save when transport filter changes
-            
             // Refresh data to apply filter
             if (currentStationId) {
                 refreshData();
@@ -901,8 +1118,6 @@
                 transportFilter[mode] = true;
                 document.getElementById(`${mode}-check`).classList.add('checked');
             });
-            
-            savePreferences(); // Save when transport filter is reset
             
             // Refresh data to apply filter
             if (currentStationId) {
@@ -1020,8 +1235,6 @@
             const loadingText = document.getElementById('loadingText');
             loadingText.textContent = mode === 'departures' ? 'Lade weitere Abfahrten...' : 'Lade weitere Ankünfte...';
             
-            savePreferences(); // Save when mode changes
-            
             // Refresh data if we have a station
             if (currentStationId) {
                 refreshData();
@@ -1067,6 +1280,12 @@
                       minutesUntil === 0 ? `<div class="in-minutes">jetzt</div>` : ''}
                 </div>
             `;
+            
+            // Add click handler to show journey details
+            itemElement.addEventListener('click', () => {
+                showJourneyDetails(item);
+            });
+            
             return itemElement;
         }
         
@@ -1150,7 +1369,6 @@
                     userPreferences.selectedStation = selectedStation.id;
                     userPreferences.selectedStationName = selectedStation.name;
                     searchInput.value = selectedStation.name;
-                    savePreferences(); // Save updated station info
                 }
                 
                 // Get departures or arrivals
@@ -1219,8 +1437,6 @@
                 button.classList.add('active');
                 refreshData();
             }
-            
-            savePreferences(); // Save when auto-refresh state changes
         }
         
         // Function to update last refresh time
@@ -1242,68 +1458,227 @@
             }
         }
         
-        // Function to restore UI state from saved preferences
-        function restoreUIState() {
-            // Restore mode tabs
-            document.getElementById('departuresTab').classList.toggle('active', currentMode === 'departures');
-            document.getElementById('arrivalsTab').classList.toggle('active', currentMode === 'arrivals');
+        // Journey overlay functions
+        function showJourneyDetails(item) {
+            const overlay = document.getElementById('journeyOverlay');
+            const lineBadge = document.getElementById('journeyLineBadge');
+            const lineText = document.getElementById('journeyLineText');
+            const route = document.getElementById('journeyRoute');
+            const content = document.getElementById('journeyContent');
             
-            // Restore transport filter checkboxes
-            Object.keys(transportFilter).forEach(mode => {
-                const checkbox = document.getElementById(`${mode}-check`);
-                if (checkbox) {
-                    if (transportFilter[mode]) {
-                        checkbox.classList.add('checked');
-                    } else {
-                        checkbox.classList.remove('checked');
-                    }
-                }
-            });
+            // Set basic journey info
+            const lineType = getLineType(item.line ? item.line.name : 'Unbekannt');
+            const lineName = item.line ? item.line.name : 'Unbekannt';
             
-            // Restore auto-refresh button state
-            const autoRefreshBtn = document.getElementById('autoRefreshBtn');
-            if (isAutoRefreshOn) {
-                autoRefreshBtn.innerHTML = `
-                    <svg class="icon" viewBox="0 0 24 24">
-                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-                    </svg>
-                    Auto: EIN`;
-                autoRefreshBtn.classList.add('active');
-                
-                // Start auto-refresh interval
-                autoRefreshInterval = setInterval(() => {
-                    refreshData();
-                    updateCurrentTime();
-                }, 60000);
+            lineBadge.className = `line-badge ${lineType}`;
+            lineBadge.textContent = lineName;
+            lineText.textContent = lineName;
+            
+            if (currentMode === 'departures') {
+                const destination = item.destination ? item.destination.name : 'Unbekannt';
+                route.textContent = `${userPreferences.selectedStationName} → ${destination}`;
             } else {
-                autoRefreshBtn.innerHTML = `
-                    <svg class="icon" viewBox="0 0 24 24">
-                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-                    </svg>
-                    Auto: AUS`;
-                autoRefreshBtn.classList.remove('active');
+                const origin = item.origin ? item.origin.name : 'Unbekannt';
+                route.textContent = `${origin} → ${userPreferences.selectedStationName}`;
             }
             
-            // Update loading text based on mode
-            const loadingText = document.getElementById('loadingText');
-            loadingText.textContent = currentMode === 'departures' ? 'Lade weitere Abfahrten...' : 'Lade weitere Ankünfte...';
+            // Show loading state
+            content.innerHTML = `
+                <div class="journey-loading">
+                    <div class="loading"></div>
+                    <div style="margin-top: 15px;">Lade Fahrtverlauf...</div>
+                </div>
+            `;
+            
+            // Show overlay
+            overlay.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+            
+            // Load journey details
+            loadJourneyDetails(item);
         }
+        
+        async function loadJourneyDetails(item) {
+            const content = document.getElementById('journeyContent');
+            
+            try {
+                // Try to get trip details if we have tripId
+                if (item.tripId) {
+                    const response = await fetch(`https://v6.vbb.transport.rest/trips/${item.tripId}`);
+                    
+                    if (response.ok) {
+                        const tripData = await response.json();
+                        displayJourneyStops(tripData, item);
+                        return;
+                    }
+                }
+                
+                // Fallback: try to get journey details using line info
+                if (item.line && item.line.id) {
+                    // This is a more complex fallback that may not always work
+                    // depending on the API response structure
+                    displayBasicJourneyInfo(item);
+                } else {
+                    throw new Error('Keine detaillierten Fahrtinformationen verfügbar');
+                }
+                
+            } catch (error) {
+                console.error('Error loading journey details:', error);
+                content.innerHTML = `
+                    <div class="journey-error">
+                        <div>Fahrtverlauf konnte nicht geladen werden</div>
+                        <div style="margin-top: 10px; font-size: 1rem; opacity: 0.8;">
+                            ${error.message}
+                        </div>
+                    </div>
+                `;
+            }
+        }
+        
+        function displayJourneyStops(tripData, originalItem) {
+            const content = document.getElementById('journeyContent');
+            
+            if (!tripData.trip || !tripData.trip.stopovers) {
+                displayBasicJourneyInfo(originalItem);
+                return;
+            }
+            
+            const stopovers = tripData.trip.stopovers;
+            const now = new Date();
+            const currentStationIndex = stopovers.findIndex(stop => 
+                stop.stop && stop.stop.id === currentStationId
+            );
+            
+            const stopsHTML = stopovers.map((stop, index) => {
+                if (!stop.stop) return '';
+                
+                const arrivalTime = stop.arrival || stop.plannedArrival;
+                const departureTime = stop.departure || stop.plannedDeparture;
+                const displayTime = departureTime || arrivalTime;
+                
+                if (!displayTime) return '';
+                
+                const time = formatTime(displayTime);
+                const delayInfo = getDelayInfo(
+                    stop.plannedDeparture || stop.plannedArrival,
+                    stop.departure || stop.arrival
+                );
+                
+                let stopClass = '';
+                const stopTime = new Date(displayTime);
+                
+                if (index < currentStationIndex || (index === currentStationIndex && now > stopTime)) {
+                    stopClass = 'passed';
+                } else if (index === currentStationIndex || 
+                          (currentStationIndex === -1 && now >= stopTime && now <= new Date(stopTime.getTime() + 5 * 60000))) {
+                    stopClass = 'current';
+                }
+                
+                if (stop.cancelled) {
+                    stopClass += ' cancelled';
+                }
+                
+                return `
+                    <div class="journey-stop ${stopClass}">
+                        <div class="journey-stop-connector"></div>
+                        <div class="journey-stop-indicator"></div>
+                        <div class="journey-stop-info">
+                            <div class="journey-stop-name">${stop.stop.name}</div>
+                            ${stop.platform ? `<div class="journey-stop-platform">Gleis ${stop.platform}</div>` : ''}
+                        </div>
+                        <div class="journey-stop-times">
+                            <div class="journey-stop-time">${time}</div>
+                            <div class="journey-stop-delay ${delayInfo.class}">${delayInfo.text}</div>
+                        </div>
+                    </div>
+                `;
+            }).filter(html => html !== '').join('');
+            
+            content.innerHTML = `<div class="journey-stops">${stopsHTML}</div>`;
+        }
+        
+        function displayBasicJourneyInfo(item) {
+            const content = document.getElementById('journeyContent');
+            
+            // Create basic journey info with origin and destination
+            const origin = currentMode === 'departures' ? 
+                userPreferences.selectedStationName : 
+                (item.origin ? item.origin.name : 'Unbekannt');
+            const destination = currentMode === 'departures' ? 
+                (item.destination ? item.destination.name : 'Unbekannt') : 
+                userPreferences.selectedStationName;
+            
+            const departureTime = formatTime(item.when || item.plannedWhen);
+            const delayInfo = getDelayInfo(item.plannedWhen, item.when);
+            
+            const basicHTML = `
+                <div class="journey-stops">
+                    <div class="journey-stop ${currentMode === 'departures' ? 'current' : 'passed'}">
+                        <div class="journey-stop-connector"></div>
+                        <div class="journey-stop-indicator"></div>
+                        <div class="journey-stop-info">
+                            <div class="journey-stop-name">${origin}</div>
+                            ${item.platform ? `<div class="journey-stop-platform">Gleis ${item.platform}</div>` : ''}
+                        </div>
+                        <div class="journey-stop-times">
+                            <div class="journey-stop-time">${departureTime}</div>
+                            <div class="journey-stop-delay ${delayInfo.class}">${delayInfo.text}</div>
+                        </div>
+                    </div>
+                    <div class="journey-stop ${currentMode === 'arrivals' ? 'current' : ''}">
+                        <div class="journey-stop-indicator"></div>
+                        <div class="journey-stop-info">
+                            <div class="journey-stop-name">${destination}</div>
+                        </div>
+                        <div class="journey-stop-times">
+                            <div class="journey-stop-time">--:--</div>
+                            <div class="journey-stop-delay on-time">Fahrtverlauf nicht verfügbar</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            content.innerHTML = basicHTML;
+        }
+        
+        function closeJourneyOverlay() {
+            const overlay = document.getElementById('journeyOverlay');
+            overlay.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+        
+        // Close overlay when clicking outside the modal
+        document.addEventListener('click', (e) => {
+            const overlay = document.getElementById('journeyOverlay');
+            const modal = overlay.querySelector('.journey-modal');
+            
+            if (overlay.style.display === 'block' && !modal.contains(e.target)) {
+                closeJourneyOverlay();
+            }
+        });
+        
+        // Close overlay with escape key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                const overlay = document.getElementById('journeyOverlay');
+                if (overlay.style.display === 'block') {
+                    closeJourneyOverlay();
+                }
+            }
+        });
         
         // Initialize
         window.addEventListener('load', function() {
             updateCurrentTime();
             setInterval(updateCurrentTime, 1000);
             
-            // Restore UI state from saved preferences
-            restoreUIState();
-            
-            // Load data with saved preferences
+            // Load data with default preferences
             refreshData();
             
             const container = document.getElementById('dataContainer');
             container.addEventListener('scroll', handleScroll, { passive: true });
             
-            console.log('App initialized with saved preferences:', savedPreferences);
+            console.log('Train departure board initialized');
         });
     </script>
 </body>
