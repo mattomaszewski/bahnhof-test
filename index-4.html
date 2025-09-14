@@ -1,0 +1,1310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Departures & Arrivals - Train Station Board</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'DB Screen Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background: #000050;
+            min-height: 100vh;
+            color: white;
+            font-weight: 300;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .header {
+            background: #000050;
+            padding: 30px;
+            flex-shrink: 0;
+        }
+        
+        .time-display {
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            font-size: 1.8rem;
+            font-weight: 400;
+            background: rgba(0,0,0,0.3);
+            padding: 8px 16px;
+            border-radius: 4px;
+            border: 2px solid white;
+        }
+        
+        .station-search-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
+            position: relative;
+        }
+        
+        .station-search-input {
+            font-family: 'DB Screen Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-size: 3rem;
+            font-weight: 300;
+            letter-spacing: 1px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            width: 100%;
+            max-width: 700px;
+            text-align: center;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+        
+        .station-search-input:focus {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: scale(1.02);
+        }
+        
+        .station-search-input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .station-suggestions {
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            max-height: 300px;
+            overflow-y: auto;
+            width: 100%;
+            max-width: 700px;
+            display: none;
+            z-index: 1000;
+            margin-top: 8px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        .station-suggestion-item {
+            padding: 16px 20px;
+            color: #1a237e;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-bottom: 1px solid rgba(26, 35, 126, 0.1);
+            font-weight: 400;
+        }
+        
+        .station-suggestion-item:last-child {
+            border-bottom: none;
+        }
+        
+        .station-suggestion-item:hover {
+            background: rgba(26, 35, 126, 0.1);
+            transform: translateX(4px);
+        }
+        
+        .controls {
+            background: #000050;
+            padding: 20px 30px;
+            display: flex;
+            gap: 20px;
+            border-bottom: 1px solid #ffffff40;
+            flex-shrink: 0;
+            align-items: center;
+        }
+        
+        .segmented-control {
+            display: flex;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            overflow: hidden;
+        }
+        
+        .segment-btn {
+            background: transparent;
+            border: none;
+            color: white;
+            padding: 12px 24px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 400;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-right: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .segment-btn:last-child {
+            border-right: none;
+        }
+        
+        .segment-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .segment-btn.active {
+            background: rgba(255, 255, 255, 0.4);
+        }
+        
+        .controls-left {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .btn {
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 400;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+        
+        .btn:active {
+            transform: translateY(1px);
+        }
+        
+        .btn.active {
+            background: rgba(255, 255, 255, 0.4);
+        }
+        
+        .icon {
+            width: 16px;
+            height: 16px;
+            fill: currentColor;
+        }
+        
+        .transport-filter {
+            position: relative;
+        }
+        
+        .transport-filter-btn {
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 400;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .transport-filter-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+        
+        .transport-filter-btn.active {
+            background: rgba(255, 255, 255, 0.4);
+        }
+        
+        .transport-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            min-width: 220px;
+            display: none;
+            z-index: 1000;
+            margin-top: 8px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+        
+        .transport-option {
+            padding: 12px 16px;
+            color: #1a237e;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-bottom: 1px solid rgba(26, 35, 126, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 400;
+        }
+        
+        .transport-option:last-child {
+            border-bottom: none;
+        }
+        
+        .transport-option:hover {
+            background: rgba(26, 35, 126, 0.1);
+        }
+        
+        .transport-checkbox {
+            width: 16px;
+            height: 16px;
+            border: 2px solid #1a237e;
+            border-radius: 3px;
+            position: relative;
+            flex-shrink: 0;
+        }
+        
+        .transport-checkbox.checked {
+            background: #000050;
+        }
+        
+        .transport-checkbox.checked::after {
+            content: '✓';
+            color: white;
+            position: absolute;
+            top: -2px;
+            left: 2px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .transport-reset {
+            padding: 12px 16px;
+            color: #dc143c;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+            font-weight: 500;
+            border-top: 1px solid rgba(26, 35, 126, 0.1);
+        }
+        
+        .transport-reset:hover {
+            background: rgba(220, 20, 60, 0.1);
+        }
+        
+        .status {
+            background: #000050;
+            padding: 15px 30px;
+            font-size: 1.1rem;
+            border-bottom: 1px solid #ffffff40;
+            flex-shrink: 0;
+        }
+        
+        .departures-container {
+            background: #000050;
+            flex: 1;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .departure-item {
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            padding: 25px 30px;
+            border-bottom: 1px solid #ffffff40;
+            transition: background 0.2s ease;
+            align-items: center;
+            gap: 20px;
+            min-height: 80px;
+        }
+        
+        .departure-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .line-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            min-width: 0;
+        }
+        
+        .line-badge {
+            background: #dc143c;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 1rem;
+            min-width: 55px;
+            text-align: center;
+            letter-spacing: 0.5px;
+            flex-shrink: 0;
+        }
+        
+        .line-badge.s-bahn {
+            background: #4caf50;
+        }
+        
+        .line-badge.regional {
+            background: #2196f3;
+        }
+        
+        .line-badge.metro {
+            background: #1976d2;
+        }
+        
+        .line-badge.tram {
+            background: #e91e63;
+        }
+        
+        .line-badge.bus {
+            background: #9c27b0;
+        }
+        
+        .destination-info {
+            min-width: 0;
+        }
+        
+        .destination {
+            font-size: 2.2rem;
+            font-weight: 300;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .platform-info {
+            font-size: 1.1rem;
+            opacity: 0.8;
+            margin-top: 5px;
+        }
+        
+        .time-info {
+            text-align: right;
+            flex-shrink: 0;
+        }
+        
+        .departure-time {
+            font-size: 2.8rem;
+            font-weight: 300;
+            line-height: 1;
+        }
+        
+        .time-suffix {
+            font-size: 1.4rem;
+            opacity: 0.8;
+            margin-left: 8px;
+        }
+        
+        .delay-info {
+            font-size: 1.2rem;
+            margin-top: 5px;
+        }
+        
+        .delay-info.on-time {
+            color: #4caf50;
+        }
+        
+        .delay-info.delayed {
+            color: #ff5722;
+            font-weight: 500;
+        }
+        
+        .in-minutes {
+            font-size: 1.8rem;
+            opacity: 0.9;
+            margin-top: 8px;
+        }
+        
+        .from-origin {
+            font-size: 1.1rem;
+            opacity: 0.8;
+            margin-top: 5px;
+        }
+        
+        .no-data {
+            text-align: center;
+            padding: 80px 30px;
+            font-size: 1.5rem;
+            opacity: 0.7;
+        }
+        
+        .loading-more {
+            text-align: center;
+            padding: 20px;
+            font-size: 1.1rem;
+            opacity: 0.8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .last-update {
+            background: #000050;
+            text-align: center;
+            padding: 20px;
+            opacity: 0.6;
+            font-size: 0.9rem;
+            border-top: 1px solid #ffffff40;
+            flex-shrink: 0;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        @media (max-width: 999px) {
+            .header {
+                padding: 15px 20px;
+            }
+            
+            .time-display {
+                position: relative;
+                top: auto;
+                left: auto;
+                font-size: 1.3rem;
+                padding: 6px 12px;
+                margin-bottom: 15px;
+                display: inline-block;
+            }
+            
+            .station-search-container {
+                margin-top: 10px;
+            }
+            
+            .station-search-input {
+                font-size: 1.8rem;
+                padding: 10px 16px;
+                max-width: 100%;
+            }
+            
+            .station-suggestions {
+                max-width: 100%;
+            }
+            
+            .controls {
+                padding: 12px 20px;
+                gap: 8px;
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .controls-left {
+                display: flex;
+                gap: 8px;
+                order: 2;
+                flex-wrap: wrap;
+            }
+            
+            .segmented-control {
+                order: 1;
+                margin-bottom: 10px;
+            }
+            
+            .segment-btn {
+                padding: 8px 16px;
+                font-size: 0.9rem;
+                flex: 1;
+            }
+            
+            .btn {
+                padding: 8px 12px;
+                font-size: 0.8rem;
+                gap: 6px;
+                flex: 1;
+                min-width: 100px;
+            }
+            
+            .transport-filter-btn {
+                padding: 8px 12px;
+                font-size: 0.8rem;
+                gap: 6px;
+                min-width: 100px;
+            }
+            
+            .transport-dropdown {
+                right: auto;
+                left: 0;
+                min-width: 200px;
+            }
+            
+            .icon {
+                width: 14px;
+                height: 14px;
+            }
+            
+            .status {
+                padding: 10px 20px;
+                font-size: 0.9rem;
+            }
+            
+            .departure-item {
+                grid-template-columns: auto 1fr auto;
+                padding: 10px 15px;
+                gap: 10px;
+                min-height: 60px;
+            }
+            
+            .line-badge {
+                padding: 4px 8px;
+                font-size: 0.8rem;
+                min-width: 40px;
+                border-radius: 15px;
+            }
+            
+            .line-info {
+                gap: 8px;
+            }
+            
+            .destination {
+                font-size: 1.1rem;
+                line-height: 1.2;
+            }
+            
+            .platform-info {
+                font-size: 0.8rem;
+                margin-top: 2px;
+            }
+            
+            .departure-time {
+                font-size: 1.4rem;
+                line-height: 1;
+            }
+            
+            .time-suffix {
+                font-size: 0.8rem;
+                margin-left: 3px;
+            }
+            
+            .delay-info {
+                font-size: 0.8rem;
+                margin-top: 2px;
+            }
+            
+            .in-minutes {
+                font-size: 0.9rem;
+                margin-top: 2px;
+            }
+            
+            .last-update {
+                padding: 12px;
+                font-size: 0.8rem;
+            }
+            
+            .no-data {
+                padding: 40px 20px;
+                font-size: 1.2rem;
+            }
+            
+            .loading-more {
+                padding: 15px;
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="time-display" id="currentTime">15:09 Uhr</div>
+            <div class="station-search-container">
+                <input 
+                    type="text" 
+                    id="stationSearch" 
+                    placeholder="Station suchen..." 
+                    class="station-search-input"
+                    autocomplete="off"
+                >
+                <div id="stationSuggestions" class="station-suggestions"></div>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <div class="segmented-control">
+                <button class="segment-btn active" onclick="switchMode('departures')" id="departuresTab">Abfahrten</button>
+                <button class="segment-btn" onclick="switchMode('arrivals')" id="arrivalsTab">Ankünfte</button>
+            </div>
+            
+            <div class="controls-left">
+                <button class="btn" onclick="refreshData()">
+                    <svg class="icon" viewBox="0 0 24 24">
+                        <path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97-.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/>
+                    </svg>
+                    Aktualisieren
+                </button>
+                <div class="transport-filter">
+                    <button class="transport-filter-btn" onclick="toggleTransportFilter()" id="transportFilterBtn">
+                        <svg class="icon" viewBox="0 0 24 24">
+                            <path d="M3 17v2h6v-2H3zM3 5v2h10V5H3zm10 16v-2h8v-2h-8v-2h-2v6h2zM7 9v2H3v2h4v2h2V9H7zm14 4v-2H11v2h10zm-6-4h2V7h4V5h-4V3h-2v6z"/>
+                        </svg>
+                        Filter
+                    </button>
+                    <div class="transport-dropdown" id="transportDropdown">
+                       <div class="transport-option" onclick="toggleTransportMode('s-bahn')">
+    <div class="transport-checkbox checked" id="s-bahn-check"></div>
+    <span>S-Bahn</span>
+</div>
+<div class="transport-option" onclick="toggleTransportMode('regional')">
+    <div class="transport-checkbox checked" id="regional-check"></div>
+    <span>Regional (RE/RB)</span>
+</div>
+<div class="transport-option" onclick="toggleTransportMode('long-distance')">
+    <div class="transport-checkbox checked" id="long-distance-check"></div>
+    <span>Fernverkehr (ICE/IC/EC)</span>
+</div>
+<div class="transport-option" onclick="toggleTransportMode('metro')">
+    <div class="transport-checkbox checked" id="metro-check"></div>
+    <span>U-Bahn</span>
+</div>
+<div class="transport-option" onclick="toggleTransportMode('tram')">
+    <div class="transport-checkbox checked" id="tram-check"></div>
+    <span>Tram</span>
+</div>
+<div class="transport-option" onclick="toggleTransportMode('bus')">
+    <div class="transport-checkbox checked" id="bus-check"></div>
+    <span>Bus</span>
+</div>
+<div class="transport-option" onclick="toggleTransportMode('ferry')">
+    <div class="transport-checkbox checked" id="ferry-check"></div>
+    <span>Fähre</span>
+</div>
+<div class="transport-reset" onclick="resetTransportFilter()">
+    Alle auswählen
+</div>
+
+                    </div>
+                </div>
+                <button class="btn" onclick="toggleAutoRefresh()" id="autoRefreshBtn">
+                    <svg class="icon" viewBox="0 0 24 24">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                    </svg>
+                    Auto: AUS
+                </button>
+            </div>
+        </div>
+        
+        <div class="status" id="status">
+            Lade Berlin Hauptbahnhof Daten...
+        </div>
+        
+        <div class="departures-container" id="dataContainer">
+            <div id="data-list">
+                <div class="no-data">
+                    Lade Abfahrtsdaten für Berlin Hauptbahnhof...
+                </div>
+            </div>
+            <div class="loading-more" id="loadingMore" style="display: none;">
+                <div class="loading"></div>
+                <span id="loadingText">Lade weitere Abfahrten...</span>
+            </div>
+        </div>
+        
+        <div class="last-update" id="lastUpdate"></div>
+    </div>
+
+    <script>
+        // Local storage key for user preferences
+        const STORAGE_KEY = 'train-board-preferences';
+        
+        // Default preferences
+        const defaultPreferences = {
+            selectedStation: null,
+            selectedStationName: 'Berlin Hbf',
+            currentMode: 'departures',
+            isAutoRefreshOn: false,
+            transportFilter: {
+                's-bahn': true,
+                'regional': true,
+                'long-distance': true,
+                'metro': true,
+                'tram': true,
+                'bus': true,
+                'ferry': true
+            }
+        };
+        
+        // Load preferences from local storage
+        function loadPreferences() {
+            try {
+                const stored = localStorage.getItem(STORAGE_KEY);
+                if (stored) {
+                    const parsed = JSON.parse(stored);
+                    // Merge with defaults to ensure all properties exist
+                    return { ...defaultPreferences, ...parsed };
+                }
+            } catch (error) {
+                console.warn('Error loading preferences from localStorage:', error);
+            }
+            return { ...defaultPreferences };
+        }
+        
+        // Save preferences to local storage
+        function savePreferences() {
+            try {
+                const preferences = {
+                    selectedStation: userPreferences.selectedStation,
+                    selectedStationName: userPreferences.selectedStationName,
+                    currentMode: currentMode,
+                    isAutoRefreshOn: isAutoRefreshOn,
+                    transportFilter: { ...transportFilter }
+                };
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(preferences));
+                console.log('Preferences saved:', preferences);
+            } catch (error) {
+                console.warn('Error saving preferences to localStorage:', error);
+            }
+        }
+        
+        // Initialize preferences from storage
+        const savedPreferences = loadPreferences();
+        
+        // User preferences (restored from storage)
+        let userPreferences = {
+            selectedStation: savedPreferences.selectedStation,
+            selectedStationName: savedPreferences.selectedStationName
+        };
+        
+        // Transport filter settings (restored from storage)
+        let transportFilter = { ...savedPreferences.transportFilter };
+        
+        const searchInput = document.getElementById('stationSearch');
+        const suggestionsBox = document.getElementById('stationSuggestions');
+
+        let searchTimeout = null;
+        let autoRefreshInterval = null;
+        let isAutoRefreshOn = savedPreferences.isAutoRefreshOn;
+        let currentData = [];
+        let isLoading = false;
+        let hasMoreData = true;
+        let currentStationId = userPreferences.selectedStation;
+        let currentMode = savedPreferences.currentMode;
+
+        // Initialize with saved station
+        searchInput.value = userPreferences.selectedStationName;
+
+        // Add click-to-reset functionality for search input
+        searchInput.addEventListener('click', () => {
+            searchInput.select();
+        });
+
+        searchInput.addEventListener('input', () => {
+            clearTimeout(searchTimeout);
+            const query = searchInput.value.trim();
+            if (query.length < 2) {
+                suggestionsBox.style.display = 'none';
+                return;
+            }
+
+            searchTimeout = setTimeout(async () => {
+                try {
+                    const response = await fetch(`https://v6.vbb.transport.rest/locations?query=${encodeURIComponent(query)}&results=7`);
+                    const stations = await response.json();
+
+                    suggestionsBox.innerHTML = '';
+                    stations.forEach(station => {
+                        if (!station.name) return;
+                        const option = document.createElement('div');
+                        option.className = 'station-suggestion-item';
+                        option.textContent = station.name;
+                        option.addEventListener('click', () => {
+                            userPreferences.selectedStation = station.id;
+                            userPreferences.selectedStationName = station.name;
+                            currentStationId = station.id;
+                            searchInput.value = station.name;
+                            suggestionsBox.style.display = 'none';
+                            savePreferences(); // Save when station changes
+                            refreshData();
+                        });
+                        suggestionsBox.appendChild(option);
+                    });
+
+                    suggestionsBox.style.display = stations.length ? 'block' : 'none';
+                } catch (err) {
+                    console.error('Station search error:', err);
+                }
+            }, 300);
+        });
+
+        // Hide dropdowns when clicking outside
+        document.addEventListener('click', (e) => {
+            // Hide station suggestions
+            if (!searchInput.contains(e.target) && !suggestionsBox.contains(e.target)) {
+                suggestionsBox.style.display = 'none';
+            }
+            // Hide transport dropdown
+            const transportDropdown = document.getElementById('transportDropdown');
+            const transportBtn = document.getElementById('transportFilterBtn');
+            if (!transportBtn.contains(e.target) && !transportDropdown.contains(e.target)) {
+                transportDropdown.style.display = 'none';
+                transportBtn.classList.remove('active');
+            }
+        });
+
+        // Transport filter functions
+        function toggleTransportFilter() {
+            const dropdown = document.getElementById('transportDropdown');
+            const btn = document.getElementById('transportFilterBtn');
+            
+            if (dropdown.style.display === 'block') {
+                dropdown.style.display = 'none';
+                btn.classList.remove('active');
+            } else {
+                dropdown.style.display = 'block';
+                btn.classList.add('active');
+            }
+        }
+
+        function toggleTransportMode(mode) {
+            transportFilter[mode] = !transportFilter[mode];
+            const checkbox = document.getElementById(`${mode}-check`);
+            
+            if (transportFilter[mode]) {
+                checkbox.classList.add('checked');
+            } else {
+                checkbox.classList.remove('checked');
+            }
+            
+            savePreferences(); // Save when transport filter changes
+            
+            // Refresh data to apply filter
+            if (currentStationId) {
+                refreshData();
+            }
+        }
+
+        function resetTransportFilter() {
+            Object.keys(transportFilter).forEach(mode => {
+                transportFilter[mode] = true;
+                document.getElementById(`${mode}-check`).classList.add('checked');
+            });
+            
+            savePreferences(); // Save when transport filter is reset
+            
+            // Refresh data to apply filter
+            if (currentStationId) {
+                refreshData();
+            }
+        }
+        
+        // Update current time display
+        function updateCurrentTime() {
+            const now = new Date();
+            document.getElementById('currentTime').textContent = 
+                now.toLocaleTimeString('de-DE', { 
+                    hour: '2-digit', 
+                    minute: '2-digit' 
+                }) + ' Uhr';
+        }
+        
+        // Function to format time
+        function formatTime(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleTimeString('de-DE', { 
+                hour: '2-digit', 
+                minute: '2-digit' 
+            });
+        }
+        
+        // Function to calculate minutes until departure/arrival
+        function getMinutesUntil(dateString) {
+            const now = new Date();
+            const time = new Date(dateString);
+            const diffMinutes = Math.round((time - now) / 60000);
+            return diffMinutes;
+        }
+        
+        // Function to determine line type and color
+        function getLineType(lineName) {
+            if (!lineName) return 'default';
+            
+            // Long distance trains (Fernverkehr)
+            if (lineName.startsWith('ICE') || lineName.startsWith('IC ') || lineName.startsWith('ECE') || 
+                lineName.startsWith('TGV') || lineName.startsWith('RJ') || lineName.startsWith('NJ') ||
+                lineName.startsWith('EN') || lineName.startsWith('CNL')) {
+                return 'long-distance';
+            }
+            
+            // S-Bahn
+            if (lineName.startsWith('S')) return 's-bahn';
+            
+            // Regional trains
+            if (lineName.startsWith('RE') || lineName.startsWith('RB') || lineName.startsWith('IRE') || 
+                lineName.startsWith('ALX') || lineName.startsWith('BOB') || lineName.startsWith('BRB') ||
+                lineName.startsWith('HEX') || lineName.startsWith('MEX') || lineName.startsWith('OE')) {
+                return 'regional';
+            }
+            
+            // U-Bahn (Metro)
+            if (lineName.startsWith('U')) return 'metro';
+            
+            // Tram (can be number-only or with prefix)
+            if (lineName.includes('Tram') || lineName.startsWith('M') || /^\d+$/.test(lineName) ||
+                lineName.startsWith('STR')) {
+                return 'tram';
+            }
+            
+            // Ferry
+            if (lineName.includes('Fähre') || lineName.includes('Ferry') || lineName.startsWith('F')) {
+                return 'ferry';
+            }
+            
+            // Bus (including various bus types)
+            if (lineName.includes('Bus') || lineName.startsWith('X') || lineName.startsWith('N') ||
+                lineName.includes('Express')) {
+                return 'bus';
+            }
+            
+            return 'default';
+        }
+        
+        // Function to check if item should be filtered out
+        function shouldFilterItem(item) {
+            const lineType = getLineType(item.line ? item.line.name : '');
+            return transportFilter[lineType] === false;
+        }
+        
+        // Function to calculate delay
+        function getDelayInfo(scheduled, realtime) {
+            if (!realtime || !scheduled) {
+                return { text: 'pünktlich', class: 'on-time' };
+            }
+            
+            const scheduledTime = new Date(scheduled);
+            const realtimeTime = new Date(realtime);
+            const delayMinutes = Math.round((realtimeTime - scheduledTime) / 60000);
+            
+            if (delayMinutes <= 0) {
+                return { text: 'pünktlich', class: 'on-time' };
+            } else {
+                return { text: `+${delayMinutes} Min`, class: 'delayed' };
+            }
+        }
+        
+        // Function to switch between departures and arrivals
+        function switchMode(mode) {
+            if (mode === currentMode) return;
+            
+            currentMode = mode;
+            currentData = [];
+            hasMoreData = true;
+            
+            // Update tab buttons
+            document.getElementById('departuresTab').classList.toggle('active', mode === 'departures');
+            document.getElementById('arrivalsTab').classList.toggle('active', mode === 'arrivals');
+            
+            // Update loading text
+            const loadingText = document.getElementById('loadingText');
+            loadingText.textContent = mode === 'departures' ? 'Lade weitere Abfahrten...' : 'Lade weitere Ankünfte...';
+            
+            savePreferences(); // Save when mode changes
+            
+            // Refresh data if we have a station
+            if (currentStationId) {
+                refreshData();
+            }
+        }
+        
+        // Function to create departure item HTML
+        function createDepartureItem(item) {
+            const delayInfo = getDelayInfo(item.plannedWhen, item.when);
+            const time = formatTime(item.when || item.plannedWhen);
+            const minutesUntil = getMinutesUntil(item.when || item.plannedWhen);
+            const lineType = getLineType(item.line ? item.line.name : 'Unbekannt');
+            
+            let destination, line, platform, originInfo = '';
+            
+            if (currentMode === 'departures') {
+                destination = item.destination ? item.destination.name : 'Unbekannt';
+                line = item.line ? item.line.name : 'Unbekannt';
+                platform = item.platform ? `Gleis ${item.platform}` : '';
+            } else {
+                // For arrivals, show origin instead of destination
+                destination = item.origin ? item.origin.name : 'Unbekannt';
+                line = item.line ? item.line.name : 'Unbekannt';
+                platform = item.platform ? `Gleis ${item.platform}` : '';
+                originInfo = `<div class="from-origin">von ${destination}</div>`;
+            }
+            
+            const itemElement = document.createElement('div');
+            itemElement.className = 'departure-item';
+            itemElement.innerHTML = `
+                <div class="line-info">
+                    <div class="line-badge ${lineType}">${line}</div>
+                </div>
+                <div class="destination-info">
+                    <div class="destination">${currentMode === 'departures' ? destination : line}</div>
+                    ${currentMode === 'arrivals' ? originInfo : ''}
+                    ${platform ? `<div class="platform-info">${platform}</div>` : ''}
+                </div>
+                <div class="time-info">
+                    <div class="departure-time">${time}<span class="time-suffix">Uhr</span></div>
+                    <div class="delay-info ${delayInfo.class}">${delayInfo.text}</div>
+                    ${minutesUntil > 0 ? `<div class="in-minutes">in ${minutesUntil} Min</div>` : 
+                      minutesUntil === 0 ? `<div class="in-minutes">jetzt</div>` : ''}
+                </div>
+            `;
+            return itemElement;
+        }
+        
+        // Function to load more data
+        async function loadMoreData() {
+            if (isLoading || !hasMoreData || !currentStationId) return;
+            
+            isLoading = true;
+            const loadingMore = document.getElementById('loadingMore');
+            loadingMore.style.display = 'flex';
+            
+            try {
+                const duration = 360 + (currentData.length * 60);
+                const endpoint = currentMode === 'departures' ? 'departures' : 'arrivals';
+                const response = await fetch(`https://v6.vbb.transport.rest/stops/${currentStationId}/${endpoint}?duration=${duration}&results=${currentData.length + 10}`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP Fehler! Status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                const items = currentMode === 'departures' ? data.departures : data.arrivals;
+                
+                if (items && items.length > currentData.length) {
+                    const newItems = items.slice(currentData.length).filter(item => !shouldFilterItem(item));
+                    const dataList = document.getElementById('data-list');
+                    
+                    newItems.forEach(item => {
+                        const itemElement = createDepartureItem(item);
+                        dataList.appendChild(itemElement);
+                        currentData.push(item);
+                    });
+                    
+                    if (newItems.length < 10) {
+                        hasMoreData = false;
+                    }
+                } else {
+                    hasMoreData = false;
+                }
+                
+            } catch (error) {
+                console.error(`Error loading more ${currentMode}:`, error);
+            }
+            
+            isLoading = false;
+            loadingMore.style.display = 'none';
+        }
+        
+        // Function to refresh data (departures or arrivals)
+        async function refreshData() {
+            const statusElement = document.getElementById('status');
+            const dataList = document.getElementById('data-list');
+            const modeText = currentMode === 'departures' ? 'Abfahrten' : 'Ankünfte';
+            
+            statusElement.innerHTML = `<div class="loading"></div>Lade ${modeText}...`;
+            currentData = [];
+            hasMoreData = true;
+            
+            try {
+                // If we don't have station ID, get it first (default to saved station or Berlin Hbf)
+                if (!currentStationId) {
+                    const defaultQuery = userPreferences.selectedStationName;
+                    const stationResponse = await fetch(`https://v6.vbb.transport.rest/locations?query=${encodeURIComponent(defaultQuery)}&results=10`);
+                    
+                    if (!stationResponse.ok) {
+                        throw new Error('Station nicht gefunden');
+                    }
+                    
+                    const stations = await stationResponse.json();
+                    
+                    if (!stations || stations.length === 0) {
+                        throw new Error(`${defaultQuery} nicht gefunden`);
+                    }
+                    
+                    // Find exact match or fallback to first station
+                    const selectedStation = stations.find(station => 
+                        station.name.toLowerCase().includes(defaultQuery.toLowerCase())
+                    ) || stations[0];
+                    
+                    currentStationId = selectedStation.id;
+                    userPreferences.selectedStation = selectedStation.id;
+                    userPreferences.selectedStationName = selectedStation.name;
+                    searchInput.value = selectedStation.name;
+                    savePreferences(); // Save updated station info
+                }
+                
+                // Get departures or arrivals
+                const endpoint = currentMode === 'departures' ? 'departures' : 'arrivals';
+                const response = await fetch(`https://v6.vbb.transport.rest/stops/${currentStationId}/${endpoint}?duration=180&results=400`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP Fehler! Status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                const items = currentMode === 'departures' ? data.departures : data.arrivals;
+                
+                if (!items || items.length === 0) {
+                    dataList.innerHTML = `<div class="no-data">Keine ${modeText.toLowerCase()} in den nächsten 3 Stunden geplant.</div>`;
+                    statusElement.innerHTML = `Keine ${modeText.toLowerCase()} in den nächsten 3 Stunden gefunden`;
+                    return;
+                }
+                
+                // Filter items based on transport mode and display
+                const filteredItems = items.filter(item => !shouldFilterItem(item));
+                dataList.innerHTML = '';
+                currentData = filteredItems;
+                
+                filteredItems.forEach(item => {
+                    const itemElement = createDepartureItem(item);
+                    dataList.appendChild(itemElement);
+                });
+                
+                const filteredCount = items.length - filteredItems.length;
+                const filterText = filteredCount > 0 ? ` (${filteredCount} gefiltert)` : '';
+                statusElement.innerHTML = `✅ ${filteredItems.length} ${modeText} von ${userPreferences.selectedStationName}${filterText}`;
+                updateLastRefreshTime();
+                
+            } catch (error) {
+                console.error(`Error loading ${currentMode}:`, error);
+                statusElement.innerHTML = `❌ Fehler beim Laden der ${modeText}. Bitte erneut versuchen.`;
+                dataList.innerHTML = `<div class="no-data">Fehler: ${error.message}<br><br>Die App verwendet die VBB (Berlin & Brandenburg) API.<br>Bitte überprüfen Sie Ihre Internetverbindung und versuchen Sie es erneut.</div>`;
+            }
+        }
+        
+        // Function to toggle auto-refresh
+        function toggleAutoRefresh() {
+            const button = document.getElementById('autoRefreshBtn');
+            
+            if (isAutoRefreshOn) {
+                clearInterval(autoRefreshInterval);
+                isAutoRefreshOn = false;
+                button.innerHTML = `
+                    <svg class="icon" viewBox="0 0 24 24">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                    </svg>
+                    Auto: AUS`;
+                button.classList.remove('active');
+            } else {
+                autoRefreshInterval = setInterval(() => {
+                    refreshData();
+                    updateCurrentTime();
+                }, 60000);
+                isAutoRefreshOn = true;
+                button.innerHTML = `
+                    <svg class="icon" viewBox="0 0 24 24">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                    </svg>
+                    Auto: EIN`;
+                button.classList.add('active');
+                refreshData();
+            }
+            
+            savePreferences(); // Save when auto-refresh state changes
+        }
+        
+        // Function to update last refresh time
+        function updateLastRefreshTime() {
+            const lastUpdate = document.getElementById('lastUpdate');
+            const now = new Date();
+            lastUpdate.textContent = `Zuletzt aktualisiert: ${now.toLocaleTimeString('de-DE')}`;
+        }
+        
+        // Scroll event listener for infinite loading
+        function handleScroll() {
+            const container = document.getElementById('dataContainer');
+            const scrollTop = container.scrollTop;
+            const scrollHeight = container.scrollHeight;
+            const clientHeight = container.clientHeight;
+            
+            if (scrollTop + clientHeight >= scrollHeight - 100) {
+                loadMoreData();
+            }
+        }
+        
+        // Function to restore UI state from saved preferences
+        function restoreUIState() {
+            // Restore mode tabs
+            document.getElementById('departuresTab').classList.toggle('active', currentMode === 'departures');
+            document.getElementById('arrivalsTab').classList.toggle('active', currentMode === 'arrivals');
+            
+            // Restore transport filter checkboxes
+            Object.keys(transportFilter).forEach(mode => {
+                const checkbox = document.getElementById(`${mode}-check`);
+                if (checkbox) {
+                    if (transportFilter[mode]) {
+                        checkbox.classList.add('checked');
+                    } else {
+                        checkbox.classList.remove('checked');
+                    }
+                }
+            });
+            
+            // Restore auto-refresh button state
+            const autoRefreshBtn = document.getElementById('autoRefreshBtn');
+            if (isAutoRefreshOn) {
+                autoRefreshBtn.innerHTML = `
+                    <svg class="icon" viewBox="0 0 24 24">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                    </svg>
+                    Auto: EIN`;
+                autoRefreshBtn.classList.add('active');
+                
+                // Start auto-refresh interval
+                autoRefreshInterval = setInterval(() => {
+                    refreshData();
+                    updateCurrentTime();
+                }, 60000);
+            } else {
+                autoRefreshBtn.innerHTML = `
+                    <svg class="icon" viewBox="0 0 24 24">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                    </svg>
+                    Auto: AUS`;
+                autoRefreshBtn.classList.remove('active');
+            }
+            
+            // Update loading text based on mode
+            const loadingText = document.getElementById('loadingText');
+            loadingText.textContent = currentMode === 'departures' ? 'Lade weitere Abfahrten...' : 'Lade weitere Ankünfte...';
+        }
+        
+        // Initialize
+        window.addEventListener('load', function() {
+            updateCurrentTime();
+            setInterval(updateCurrentTime, 1000);
+            
+            // Restore UI state from saved preferences
+            restoreUIState();
+            
+            // Load data with saved preferences
+            refreshData();
+            
+            const container = document.getElementById('dataContainer');
+            container.addEventListener('scroll', handleScroll, { passive: true });
+            
+            console.log('App initialized with saved preferences:', savedPreferences);
+        });
+    </script>
+</body>
+</html>
