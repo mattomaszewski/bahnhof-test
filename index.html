@@ -328,6 +328,7 @@
             align-items: center;
             gap: 20px;
             min-height: 80px;
+            cursor: pointer;
         }
         
         .departure-item:hover {
@@ -471,6 +472,254 @@
             border-radius: 50%;
             border-top-color: white;
             animation: spin 1s ease-in-out infinite;
+        }
+        
+        .debug-info {
+            background: rgba(255, 255, 0, 0.1);
+            border: 1px solid rgba(255, 255, 0, 0.3);
+            padding: 10px;
+            margin: 10px 30px;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            font-family: monospace;
+        }
+        
+        /* Journey Progress Overlay Styles */
+        .journey-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 80, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 2000;
+            display: none;
+            flex-direction: column;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .journey-overlay.active {
+            display: flex;
+            opacity: 1;
+        }
+        
+        .journey-header {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 20px 30px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+        
+        .journey-title {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .journey-line-badge {
+            background: #dc143c;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            letter-spacing: 0.5px;
+        }
+        
+        .journey-line-badge.s-bahn {
+            background: #4caf50;
+        }
+        
+        .journey-line-badge.regional {
+            background: #2196f3;
+        }
+        
+        .journey-line-badge.metro {
+            background: #1976d2;
+        }
+        
+        .journey-line-badge.tram {
+            background: #e91e63;
+        }
+        
+        .journey-line-badge.bus {
+            background: #9c27b0;
+        }
+        
+        .journey-destination {
+            font-size: 1.8rem;
+            font-weight: 300;
+        }
+        
+        .journey-close-btn {
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 400;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .journey-close-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+        }
+        
+        .journey-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px 30px;
+        }
+        
+        .journey-loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            height: 200px;
+            gap: 20px;
+        }
+        
+        .journey-error {
+            text-align: center;
+            padding: 40px;
+            font-size: 1.2rem;
+            opacity: 0.8;
+        }
+        
+        .journey-stops {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .journey-stop {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 30px;
+            position: relative;
+        }
+        
+        .journey-stop:last-child {
+            margin-bottom: 0;
+        }
+        
+        .stop-timeline {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-right: 20px;
+            position: relative;
+            min-height: 60px;
+        }
+        
+        .stop-dot {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.4);
+            border: 3px solid rgba(255, 255, 255, 0.6);
+            margin-bottom: 8px;
+            z-index: 1;
+            position: relative;
+        }
+        
+        .stop-dot.current {
+            background: #4caf50;
+            border-color: #4caf50;
+            box-shadow: 0 0 20px rgba(76, 175, 80, 0.5);
+        }
+        
+        .stop-dot.passed {
+            background: rgba(255, 255, 255, 0.8);
+            border-color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .stop-line {
+            position: absolute;
+            top: 22px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 2px;
+            background: rgba(255, 255, 255, 0.3);
+            height: calc(100% + 10px);
+        }
+        
+        .stop-line.passed {
+            background: rgba(255, 255, 255, 0.6);
+        }
+        
+        .journey-stop:last-child .stop-line {
+            display: none;
+        }
+        
+        .stop-info {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .stop-name {
+            font-size: 1.4rem;
+            font-weight: 400;
+            margin-bottom: 8px;
+            line-height: 1.2;
+        }
+        
+        .stop-name.current {
+            color: #4caf50;
+            font-weight: 500;
+        }
+        
+        .stop-times {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 8px;
+            flex-wrap: wrap;
+        }
+        
+        .stop-time {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        
+        .stop-time-label {
+            font-size: 0.9rem;
+            opacity: 0.7;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .stop-time-value {
+            font-size: 1.2rem;
+            font-weight: 400;
+        }
+        
+        .stop-delay {
+            font-size: 0.9rem;
+            margin-top: 4px;
+        }
+        
+        .stop-delay.on-time {
+            color: #4caf50;
+        }
+        
+        .stop-delay.delayed {
+            color: #ff5722;
+        }
+        
+        .stop-platform {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-top: 4px;
         }
         
         @keyframes spin {
@@ -624,6 +873,46 @@
                 padding: 15px;
                 font-size: 1rem;
             }
+            
+            .debug-info {
+                margin: 10px 15px;
+                padding: 8px;
+                font-size: 0.8rem;
+            }
+            
+            /* Mobile styles for journey overlay */
+            .journey-header {
+                padding: 15px 20px;
+            }
+            
+            .journey-destination {
+                font-size: 1.4rem;
+            }
+            
+            .journey-line-badge {
+                padding: 6px 12px;
+                font-size: 1rem;
+            }
+            
+            .journey-content {
+                padding: 15px 20px;
+            }
+            
+            .stop-timeline {
+                margin-right: 15px;
+            }
+            
+            .stop-name {
+                font-size: 1.2rem;
+            }
+            
+            .stop-times {
+                gap: 15px;
+            }
+            
+            .stop-time-value {
+                font-size: 1.1rem;
+            }
         }
     </style>
 </head>
@@ -726,13 +1015,51 @@
         <div class="last-update" id="lastUpdate"></div>
     </div>
 
+    <!-- Journey Progress Overlay -->
+    <div class="journey-overlay" id="journeyOverlay">
+        <div class="journey-header">
+            <div class="journey-title">
+                <div class="journey-line-badge" id="journeyLineBadge">RE1</div>
+                <div class="journey-destination" id="journeyDestination">Nach Brandenburg (Havel)</div>
+            </div>
+            <button class="journey-close-btn" onclick="closeJourneyOverlay()">Schließen</button>
+        </div>
+        <div class="journey-content" id="journeyContent">
+            <div class="journey-loading">
+                <div class="loading"></div>
+                <div>Lade Reiseverlauf...</div>
+            </div>
+        </div>
+    </div>
+
     <script>
+        // Debug mode - set to false for production
+        const DEBUG_MODE = true;
+        
+        // API Configuration with fallback options
+        const API_CONFIG = {
+            baseUrl: 'https://v6.vbb.transport.rest',
+            fallbackBaseUrl: 'https://v5.vbb.transport.rest',
+            timeout: 10000
+        };
+        
+        // Known station IDs for fallback
+        const KNOWN_STATIONS = {
+            'Berlin Hbf': '8011160',
+            'Berlin Hauptbahnhof': '8011160',
+            'Berlin Ostbahnhof': '8010255',
+            'Berlin Alexanderplatz': '8089021',
+            'Berlin Friedrichstraße': '8011113',
+            'Berlin Potsdamer Platz': '8070003',
+            'Berlin Südkreuz': '8011113'
+        };
+        
         // Local storage key for user preferences
         const STORAGE_KEY = 'train-board-preferences';
         
         // Default preferences
         const defaultPreferences = {
-            selectedStation: null,
+            selectedStation: '8011160', // Default to Berlin Hbf
             selectedStationName: 'Berlin Hbf',
             currentMode: 'departures',
             isAutoRefreshOn: false,
@@ -747,18 +1074,96 @@
             }
         };
         
+        // Debug logging function
+        function debugLog(message, data = null) {
+            if (DEBUG_MODE) {
+                console.log(`[DEBUG] ${message}`, data);
+                
+                // Show debug info in UI for critical errors
+                if (message.includes('ERROR') || message.includes('FAIL')) {
+                    showDebugInfo(`${message}: ${data ? JSON.stringify(data) : ''}`);
+                }
+            }
+        }
+        
+        // Show debug information in the UI
+        function showDebugInfo(message) {
+            const debugContainer = document.getElementById('debugContainer') || createDebugContainer();
+            debugContainer.innerHTML = `Debug: ${message}`;
+            debugContainer.style.display = 'block';
+            
+            // Hide after 10 seconds
+            setTimeout(() => {
+                debugContainer.style.display = 'none';
+            }, 10000);
+        }
+        
+        function createDebugContainer() {
+            const container = document.createElement('div');
+            container.id = 'debugContainer';
+            container.className = 'debug-info';
+            container.style.display = 'none';
+            document.querySelector('.container').insertBefore(container, document.querySelector('.status'));
+            return container;
+        }
+        
+        // Enhanced fetch with timeout and retries
+        async function apiRequest(url, options = {}) {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), API_CONFIG.timeout);
+            
+            try {
+                debugLog(`API Request: ${url}`);
+                
+                const response = await fetch(url, {
+                    ...options,
+                    signal: controller.signal,
+                    headers: {
+                        'Accept': 'application/json',
+                        ...options.headers
+                    }
+                });
+                
+                clearTimeout(timeoutId);
+                
+                debugLog(`API Response: ${response.status} ${response.statusText}`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                debugLog(`API Data received:`, data);
+                
+                return data;
+                
+            } catch (error) {
+                clearTimeout(timeoutId);
+                debugLog(`API ERROR: ${error.message}`, error);
+                throw error;
+            }
+        }
+        
+        // Validate station ID format
+        function isValidStationId(stationId) {
+            // VBB station IDs are typically 7-8 digit numbers
+            return /^\d{7,8}$/.test(stationId);
+        }
+        
         // Load preferences from local storage
         function loadPreferences() {
             try {
                 const stored = localStorage.getItem(STORAGE_KEY);
                 if (stored) {
                     const parsed = JSON.parse(stored);
+                    debugLog('Loaded preferences:', parsed);
                     // Merge with defaults to ensure all properties exist
                     return { ...defaultPreferences, ...parsed };
                 }
             } catch (error) {
-                console.warn('Error loading preferences from localStorage:', error);
+                debugLog('ERROR loading preferences:', error);
             }
+            debugLog('Using default preferences');
             return { ...defaultPreferences };
         }
         
@@ -773,9 +1178,9 @@
                     transportFilter: { ...transportFilter }
                 };
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(preferences));
-                console.log('Preferences saved:', preferences);
+                debugLog('Preferences saved:', preferences);
             } catch (error) {
-                console.warn('Error saving preferences to localStorage:', error);
+                debugLog('ERROR saving preferences:', error);
             }
         }
         
@@ -820,34 +1225,88 @@
             }
 
             searchTimeout = setTimeout(async () => {
-                try {
-                    const response = await fetch(`https://v6.vbb.transport.rest/locations?query=${encodeURIComponent(query)}&results=7`);
-                    const stations = await response.json();
-
-                    suggestionsBox.innerHTML = '';
-                    stations.forEach(station => {
-                        if (!station.name) return;
-                        const option = document.createElement('div');
-                        option.className = 'station-suggestion-item';
-                        option.textContent = station.name;
-                        option.addEventListener('click', () => {
-                            userPreferences.selectedStation = station.id;
-                            userPreferences.selectedStationName = station.name;
-                            currentStationId = station.id;
-                            searchInput.value = station.name;
-                            suggestionsBox.style.display = 'none';
-                            savePreferences(); // Save when station changes
-                            refreshData();
-                        });
-                        suggestionsBox.appendChild(option);
-                    });
-
-                    suggestionsBox.style.display = stations.length ? 'block' : 'none';
-                } catch (err) {
-                    console.error('Station search error:', err);
-                }
+                await searchStations(query);
             }, 300);
         });
+        
+        // Enhanced station search with fallback
+        async function searchStations(query) {
+            try {
+                debugLog(`Searching stations for: ${query}`);
+                
+                // Check if it matches a known station first
+                const knownStation = Object.entries(KNOWN_STATIONS).find(([name]) => 
+                    name.toLowerCase().includes(query.toLowerCase())
+                );
+                
+                if (knownStation) {
+                    debugLog(`Found known station: ${knownStation[0]} -> ${knownStation[1]}`);
+                    showStationSuggestions([{
+                        id: knownStation[1],
+                        name: knownStation[0]
+                    }]);
+                    return;
+                }
+                
+                // Try API search
+                const url = `${API_CONFIG.baseUrl}/locations?query=${encodeURIComponent(query)}&results=7`;
+                const stations = await apiRequest(url);
+                
+                showStationSuggestions(stations);
+                
+            } catch (error) {
+                debugLog(`Station search ERROR: ${error.message}`);
+                
+                // Fallback to filtered known stations
+                const matchingStations = Object.entries(KNOWN_STATIONS)
+                    .filter(([name]) => name.toLowerCase().includes(query.toLowerCase()))
+                    .map(([name, id]) => ({ id, name }));
+                
+                if (matchingStations.length > 0) {
+                    debugLog('Using fallback known stations:', matchingStations);
+                    showStationSuggestions(matchingStations);
+                } else {
+                    suggestionsBox.style.display = 'none';
+                }
+            }
+        }
+        
+        function showStationSuggestions(stations) {
+            suggestionsBox.innerHTML = '';
+            
+            stations.forEach(station => {
+                if (!station.name) return;
+                
+                const option = document.createElement('div');
+                option.className = 'station-suggestion-item';
+                option.textContent = station.name;
+                option.addEventListener('click', () => {
+                    selectStation(station);
+                });
+                suggestionsBox.appendChild(option);
+            });
+
+            suggestionsBox.style.display = stations.length ? 'block' : 'none';
+        }
+        
+        function selectStation(station) {
+            debugLog('Station selected:', station);
+            
+            userPreferences.selectedStation = station.id;
+            userPreferences.selectedStationName = station.name;
+            currentStationId = station.id;
+            searchInput.value = station.name;
+            suggestionsBox.style.display = 'none';
+            
+            // Validate station ID
+            if (!isValidStationId(station.id)) {
+                debugLog(`WARNING: Invalid station ID format: ${station.id}`);
+                showDebugInfo(`Ungewöhnliche Station ID: ${station.id}`);
+            }
+            
+            savePreferences();
+            refreshData();
+        }
 
         // Hide dropdowns when clicking outside
         document.addEventListener('click', (e) => {
@@ -861,6 +1320,15 @@
             if (!transportBtn.contains(e.target) && !transportDropdown.contains(e.target)) {
                 transportDropdown.style.display = 'none';
                 transportBtn.classList.remove('active');
+            }
+            // Hide journey overlay when clicking outside content
+            const journeyOverlay = document.getElementById('journeyOverlay');
+            const journeyContent = document.querySelector('.journey-content');
+            const journeyHeader = document.querySelector('.journey-header');
+            if (journeyOverlay.classList.contains('active') && 
+                !journeyContent.contains(e.target) && 
+                !journeyHeader.contains(e.target)) {
+                closeJourneyOverlay();
             }
         });
 
@@ -888,7 +1356,8 @@
                 checkbox.classList.remove('checked');
             }
             
-            savePreferences(); // Save when transport filter changes
+            debugLog(`Transport filter ${mode}: ${transportFilter[mode]}`);
+            savePreferences();
             
             // Refresh data to apply filter
             if (currentStationId) {
@@ -902,12 +1371,172 @@
                 document.getElementById(`${mode}-check`).classList.add('checked');
             });
             
-            savePreferences(); // Save when transport filter is reset
+            debugLog('Transport filter reset to all enabled');
+            savePreferences();
             
             // Refresh data to apply filter
             if (currentStationId) {
                 refreshData();
             }
+        }
+        
+        // Journey overlay functions
+        function showJourneyProgress(tripId, lineName, destination) {
+            debugLog(`Showing journey progress for trip: ${tripId}`);
+            
+            const overlay = document.getElementById('journeyOverlay');
+            const lineBadge = document.getElementById('journeyLineBadge');
+            const destinationEl = document.getElementById('journeyDestination');
+            const content = document.getElementById('journeyContent');
+            
+            // Set header information
+            lineBadge.textContent = lineName || '';
+            lineBadge.className = `journey-line-badge ${getLineType(lineName)}`;
+            destinationEl.textContent = `Nach ${destination || 'Unbekannt'}`;
+            
+            // Show loading state
+            content.innerHTML = `
+                <div class="journey-loading">
+                    <div class="loading"></div>
+                    <div>Lade Reiseverlauf...</div>
+                </div>
+            `;
+            
+            // Show overlay
+            overlay.classList.add('active');
+            
+            // Fetch journey data
+            fetchJourneyProgress(tripId);
+        }
+        
+        async function fetchJourneyProgress(tripId) {
+            const content = document.getElementById('journeyContent');
+            
+            try {
+                debugLog(`Fetching journey progress for trip: ${tripId}`);
+                
+                if (!tripId) {
+                    throw new Error('Keine Trip-ID verfügbar');
+                }
+                
+                const url = `${API_CONFIG.baseUrl}/trips/${encodeURIComponent(tripId)}`;
+                const journeyData = await apiRequest(url);
+                
+                debugLog('Journey data received:', journeyData);
+                renderJourneyStops(journeyData);
+                
+            } catch (error) {
+                debugLog(`Journey progress ERROR: ${error.message}`, error);
+                
+                content.innerHTML = `
+                    <div class="journey-error">
+                        <div>Fehler beim Laden des Reiseverlaufs</div>
+                        <div style="font-size: 1rem; margin-top: 10px; opacity: 0.7;">
+                            ${error.message}
+                        </div>
+                        <div style="font-size: 0.9rem; margin-top: 10px; opacity: 0.5;">
+                            Trip-ID: ${tripId || 'N/A'}
+                        </div>
+                    </div>
+                `;
+            }
+        }
+        
+        function renderJourneyStops(journeyData) {
+            const content = document.getElementById('journeyContent');
+            
+            if (!journeyData.trip || !journeyData.trip.stopovers) {
+                content.innerHTML = `
+                    <div class="journey-error">
+                        Keine Haltestellen-Informationen verfügbar
+                    </div>
+                `;
+                return;
+            }
+            
+            const now = new Date();
+            const stopovers = journeyData.trip.stopovers;
+            
+            debugLog(`Rendering ${stopovers.length} stops`);
+            
+            // Find current position in journey
+            let currentStopIndex = -1;
+            for (let i = 0; i < stopovers.length; i++) {
+                const stopover = stopovers[i];
+                const departureTime = stopover.departure || stopover.arrival;
+                if (departureTime && new Date(departureTime) > now) {
+                    currentStopIndex = i;
+                    break;
+                }
+            }
+            
+            const stopsHtml = stopovers.map((stopover, index) => {
+                const isPassed = index < currentStopIndex;
+                const isCurrent = index === currentStopIndex;
+                const station = stopover.stop || {};
+                
+                const arrivalTime = stopover.arrival;
+                const departureTime = stopover.departure;
+                const plannedArrival = stopover.plannedArrival;
+                const plannedDeparture = stopover.plannedDeparture;
+                
+                // Calculate delays
+                const arrivalDelay = arrivalTime && plannedArrival ? 
+                    Math.round((new Date(arrivalTime) - new Date(plannedArrival)) / 60000) : 0;
+                const departureDelay = departureTime && plannedDeparture ? 
+                    Math.round((new Date(departureTime) - new Date(plannedDeparture)) / 60000) : 0;
+                
+                let delayInfo = '';
+                if (arrivalDelay > 0 || departureDelay > 0) {
+                    const maxDelay = Math.max(arrivalDelay, departureDelay);
+                    delayInfo = `<div class="stop-delay delayed">+${maxDelay} Min</div>`;
+                } else if (arrivalTime || departureTime) {
+                    delayInfo = `<div class="stop-delay on-time">pünktlich</div>`;
+                }
+                
+                const platformInfo = stopover.platform ? 
+                    `<div class="stop-platform">Gleis ${stopover.platform}</div>` : '';
+                
+                return `
+                    <div class="journey-stop">
+                        <div class="stop-timeline">
+                            <div class="stop-dot ${isCurrent ? 'current' : isPassed ? 'passed' : ''}"></div>
+                            <div class="stop-line ${isPassed ? 'passed' : ''}"></div>
+                        </div>
+                        <div class="stop-info">
+                            <div class="stop-name ${isCurrent ? 'current' : ''}">${station.name || 'Unbekannt'}</div>
+                            <div class="stop-times">
+                                ${arrivalTime ? `
+                                    <div class="stop-time">
+                                        <div class="stop-time-label">Ankunft</div>
+                                        <div class="stop-time-value">${formatTime(arrivalTime)}</div>
+                                    </div>
+                                ` : ''}
+                                ${departureTime ? `
+                                    <div class="stop-time">
+                                        <div class="stop-time-label">Abfahrt</div>
+                                        <div class="stop-time-value">${formatTime(departureTime)}</div>
+                                    </div>
+                                ` : ''}
+                            </div>
+                            ${delayInfo}
+                            ${platformInfo}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            content.innerHTML = `
+                <div class="journey-stops">
+                    ${stopsHtml}
+                </div>
+            `;
+        }
+        
+        function closeJourneyOverlay() {
+            const overlay = document.getElementById('journeyOverlay');
+            overlay.classList.remove('active');
+            debugLog('Journey overlay closed');
         }
         
         // Update current time display
@@ -922,19 +1551,31 @@
         
         // Function to format time
         function formatTime(dateString) {
-            const date = new Date(dateString);
-            return date.toLocaleTimeString('de-DE', { 
-                hour: '2-digit', 
-                minute: '2-digit' 
-            });
+            if (!dateString) return 'N/A';
+            try {
+                const date = new Date(dateString);
+                return date.toLocaleTimeString('de-DE', { 
+                    hour: '2-digit', 
+                    minute: '2-digit' 
+                });
+            } catch (error) {
+                debugLog('Time formatting error:', error);
+                return 'N/A';
+            }
         }
         
         // Function to calculate minutes until departure/arrival
         function getMinutesUntil(dateString) {
-            const now = new Date();
-            const time = new Date(dateString);
-            const diffMinutes = Math.round((time - now) / 60000);
-            return diffMinutes;
+            if (!dateString) return 0;
+            try {
+                const now = new Date();
+                const time = new Date(dateString);
+                const diffMinutes = Math.round((time - now) / 60000);
+                return diffMinutes;
+            } catch (error) {
+                debugLog('Minutes calculation error:', error);
+                return 0;
+            }
         }
         
         // Function to determine line type and color
@@ -993,318 +1634,132 @@
                 return { text: 'pünktlich', class: 'on-time' };
             }
             
-            const scheduledTime = new Date(scheduled);
-            const realtimeTime = new Date(realtime);
-            const delayMinutes = Math.round((realtimeTime - scheduledTime) / 60000);
-            
-            if (delayMinutes <= 0) {
-                return { text: 'pünktlich', class: 'on-time' };
-            } else {
-                return { text: `+${delayMinutes} Min`, class: 'delayed' };
+            try {
+                const scheduledTime = new Date(scheduled);
+                const realtimeTime = new Date(realtime);
+                const delayMinutes = Math.round((realtimeTime - scheduledTime) / 60000);
+                
+                if (delayMinutes <= 0) {
+                    return { text: 'pünktlich', class: 'on-time' };
+                } else {
+                    return { text: `+${delayMinutes} Min`, class: 'delayed' };
+                }
+            } catch (error) {
+                debugLog('Delay calculation error:', error);
+                return { text: 'unbekannt', class: 'on-time' };
             }
         }
         
         // Function to switch between departures and arrivals
         function switchMode(mode) {
-            if (mode === currentMode) return;
+            if (currentMode === mode) return;
             
+            debugLog(`Switching mode to: ${mode}`);
             currentMode = mode;
-            currentData = [];
-            hasMoreData = true;
             
-            // Update tab buttons
+            // Update UI
             document.getElementById('departuresTab').classList.toggle('active', mode === 'departures');
             document.getElementById('arrivalsTab').classList.toggle('active', mode === 'arrivals');
             
-            // Update loading text
-            const loadingText = document.getElementById('loadingText');
-            loadingText.textContent = mode === 'departures' ? 'Lade weitere Abfahrten...' : 'Lade weitere Ankünfte...';
+            // Save preference
+            savePreferences();
             
-            savePreferences(); // Save when mode changes
-            
-            // Refresh data if we have a station
+            // Refresh data
             if (currentStationId) {
                 refreshData();
             }
         }
         
-        // Function to create departure item HTML
-        function createDepartureItem(item) {
-            const delayInfo = getDelayInfo(item.plannedWhen, item.when);
-            const time = formatTime(item.when || item.plannedWhen);
-            const minutesUntil = getMinutesUntil(item.when || item.plannedWhen);
-            const lineType = getLineType(item.line ? item.line.name : 'Unbekannt');
+        // Function to toggle auto refresh
+        function toggleAutoRefresh() {
+            isAutoRefreshOn = !isAutoRefreshOn;
             
-            let destination, line, platform, originInfo = '';
-            
-            if (currentMode === 'departures') {
-                destination = item.destination ? item.destination.name : 'Unbekannt';
-                line = item.line ? item.line.name : 'Unbekannt';
-                platform = item.platform ? `Gleis ${item.platform}` : '';
+            const btn = document.getElementById('autoRefreshBtn');
+            if (isAutoRefreshOn) {
+                btn.innerHTML = `
+                    <svg class="icon" viewBox="0 0 24 24">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                    </svg>
+                    Auto: EIN
+                `;
+                btn.classList.add('active');
+                autoRefreshInterval = setInterval(refreshData, 30000); // Refresh every 30 seconds
+                debugLog('Auto refresh enabled');
             } else {
-                // For arrivals, show origin instead of destination
-                destination = item.origin ? item.origin.name : 'Unbekannt';
-                line = item.line ? item.line.name : 'Unbekannt';
-                platform = item.platform ? `Gleis ${item.platform}` : '';
-                originInfo = `<div class="from-origin">von ${destination}</div>`;
+                btn.innerHTML = `
+                    <svg class="icon" viewBox="0 0 24 24">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                    </svg>
+                    Auto: AUS
+                `;
+                btn.classList.remove('active');
+                if (autoRefreshInterval) {
+                    clearInterval(autoRefreshInterval);
+                    autoRefreshInterval = null;
+                }
+                debugLog('Auto refresh disabled');
             }
             
-            const itemElement = document.createElement('div');
-            itemElement.className = 'departure-item';
-            itemElement.innerHTML = `
-                <div class="line-info">
-                    <div class="line-badge ${lineType}">${line}</div>
-                </div>
-                <div class="destination-info">
-                    <div class="destination">${currentMode === 'departures' ? destination : line}</div>
-                    ${currentMode === 'arrivals' ? originInfo : ''}
-                    ${platform ? `<div class="platform-info">${platform}</div>` : ''}
-                </div>
-                <div class="time-info">
-                    <div class="departure-time">${time}<span class="time-suffix">Uhr</span></div>
-                    <div class="delay-info ${delayInfo.class}">${delayInfo.text}</div>
-                    ${minutesUntil > 0 ? `<div class="in-minutes">in ${minutesUntil} Min</div>` : 
-                      minutesUntil === 0 ? `<div class="in-minutes">jetzt</div>` : ''}
-                </div>
-            `;
-            return itemElement;
+            // Save preference
+            savePreferences();
         }
         
-        // Function to load more data
-        async function loadMoreData() {
-            if (isLoading || !hasMoreData || !currentStationId) return;
+        // Enhanced refresh data function with better error handling
+        async function refreshData() {
+            if (isLoading) {
+                debugLog('Already loading, skipping refresh');
+                return;
+            }
+            
+            if (!currentStationId) {
+                debugLog('No station ID available');
+                const status = document.getElementById('status');
+                status.textContent = 'Bitte wählen Sie eine Station aus.';
+                return;
+            }
+            
+            debugLog(`Refreshing data for station: ${currentStationId} (${userPreferences.selectedStationName}), mode: ${currentMode}`);
             
             isLoading = true;
-            const loadingMore = document.getElementById('loadingMore');
-            loadingMore.style.display = 'flex';
+            const status = document.getElementById('status');
+            status.textContent = `Lade ${currentMode === 'departures' ? 'Abfahrten' : 'Ankünfte'}...`;
             
             try {
-                const duration = 360 + (currentData.length * 60);
+                // Validate station ID before making request
+                if (!isValidStationId(currentStationId)) {
+                    throw new Error(`Ungültige Station ID: ${currentStationId}`);
+                }
+                
                 const endpoint = currentMode === 'departures' ? 'departures' : 'arrivals';
-                const response = await fetch(`https://v6.vbb.transport.rest/stops/${currentStationId}/${endpoint}?duration=${duration}&results=${currentData.length + 10}`);
+                const url = `${API_CONFIG.baseUrl}/stops/${currentStationId}/${endpoint}?duration=120`;
                 
-                if (!response.ok) {
-                    throw new Error(`HTTP Fehler! Status: ${response.status}`);
+                debugLog(`API URL: ${url}`);
+                
+                const data = await apiRequest(url);
+                
+                if (!Array.isArray(data)) {
+                    throw new Error('Ungültiges Datenformat von der API erhalten');
                 }
                 
-                const data = await response.json();
-                const items = currentMode === 'departures' ? data.departures : data.arrivals;
+                debugLog(`Received ${data.length} items from API`);
                 
-                if (items && items.length > currentData.length) {
-                    const newItems = items.slice(currentData.length).filter(item => !shouldFilterItem(item));
-                    const dataList = document.getElementById('data-list');
-                    
-                    newItems.forEach(item => {
-                        const itemElement = createDepartureItem(item);
-                        dataList.appendChild(itemElement);
-                        currentData.push(item);
-                    });
-                    
-                    if (newItems.length < 10) {
-                        hasMoreData = false;
-                    }
-                } else {
-                    hasMoreData = false;
-                }
+                // Filter data based on transport preferences
+                const filteredData = data.filter(item => !shouldFilterItem(item));
+                debugLog(`Filtered to ${filteredData.length} items`);
+                
+                currentData = filteredData;
+                hasMoreData = data.length >= 30; // Assume more data if we got a full batch
+                
+                renderData(filteredData);
+                
+                const now = new Date();
+                document.getElementById('lastUpdate').textContent = 
+                    `Letzte Aktualisierung: ${now.toLocaleTimeString('de-DE')}`;
+                
+                const stationName = userPreferences.selectedStationName || 'Unbekannte Station';
+                status.textContent = `${filteredData.length} ${currentMode === 'departures' ? 'Abfahrten' : 'Ankünfte'} für ${stationName}`;
+                
+                debugLog(`Data refresh successful for ${stationName}`);
                 
             } catch (error) {
-                console.error(`Error loading more ${currentMode}:`, error);
-            }
-            
-            isLoading = false;
-            loadingMore.style.display = 'none';
-        }
-        
-        // Function to refresh data (departures or arrivals)
-        async function refreshData() {
-            const statusElement = document.getElementById('status');
-            const dataList = document.getElementById('data-list');
-            const modeText = currentMode === 'departures' ? 'Abfahrten' : 'Ankünfte';
-            
-            statusElement.innerHTML = `<div class="loading"></div>Lade ${modeText}...`;
-            currentData = [];
-            hasMoreData = true;
-            
-            try {
-                // If we don't have station ID, get it first (default to saved station or Berlin Hbf)
-                if (!currentStationId) {
-                    const defaultQuery = userPreferences.selectedStationName;
-                    const stationResponse = await fetch(`https://v6.vbb.transport.rest/locations?query=${encodeURIComponent(defaultQuery)}&results=10`);
-                    
-                    if (!stationResponse.ok) {
-                        throw new Error('Station nicht gefunden');
-                    }
-                    
-                    const stations = await stationResponse.json();
-                    
-                    if (!stations || stations.length === 0) {
-                        throw new Error(`${defaultQuery} nicht gefunden`);
-                    }
-                    
-                    // Find exact match or fallback to first station
-                    const selectedStation = stations.find(station => 
-                        station.name.toLowerCase().includes(defaultQuery.toLowerCase())
-                    ) || stations[0];
-                    
-                    currentStationId = selectedStation.id;
-                    userPreferences.selectedStation = selectedStation.id;
-                    userPreferences.selectedStationName = selectedStation.name;
-                    searchInput.value = selectedStation.name;
-                    savePreferences(); // Save updated station info
-                }
-                
-                // Get departures or arrivals
-                const endpoint = currentMode === 'departures' ? 'departures' : 'arrivals';
-                const response = await fetch(`https://v6.vbb.transport.rest/stops/${currentStationId}/${endpoint}?duration=180&results=400`);
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP Fehler! Status: ${response.status}`);
-                }
-                
-                const data = await response.json();
-                const items = currentMode === 'departures' ? data.departures : data.arrivals;
-                
-                if (!items || items.length === 0) {
-                    dataList.innerHTML = `<div class="no-data">Keine ${modeText.toLowerCase()} in den nächsten 3 Stunden geplant.</div>`;
-                    statusElement.innerHTML = `Keine ${modeText.toLowerCase()} in den nächsten 3 Stunden gefunden`;
-                    return;
-                }
-                
-                // Filter items based on transport mode and display
-                const filteredItems = items.filter(item => !shouldFilterItem(item));
-                dataList.innerHTML = '';
-                currentData = filteredItems;
-                
-                filteredItems.forEach(item => {
-                    const itemElement = createDepartureItem(item);
-                    dataList.appendChild(itemElement);
-                });
-                
-                const filteredCount = items.length - filteredItems.length;
-                const filterText = filteredCount > 0 ? ` (${filteredCount} gefiltert)` : '';
-                statusElement.innerHTML = `✅ ${filteredItems.length} ${modeText} von ${userPreferences.selectedStationName}${filterText}`;
-                updateLastRefreshTime();
-                
-            } catch (error) {
-                console.error(`Error loading ${currentMode}:`, error);
-                statusElement.innerHTML = `❌ Fehler beim Laden der ${modeText}. Bitte erneut versuchen.`;
-                dataList.innerHTML = `<div class="no-data">Fehler: ${error.message}<br><br>Die App verwendet die VBB (Berlin & Brandenburg) API.<br>Bitte überprüfen Sie Ihre Internetverbindung und versuchen Sie es erneut.</div>`;
-            }
-        }
-        
-        // Function to toggle auto-refresh
-        function toggleAutoRefresh() {
-            const button = document.getElementById('autoRefreshBtn');
-            
-            if (isAutoRefreshOn) {
-                clearInterval(autoRefreshInterval);
-                isAutoRefreshOn = false;
-                button.innerHTML = `
-                    <svg class="icon" viewBox="0 0 24 24">
-                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-                    </svg>
-                    Auto: AUS`;
-                button.classList.remove('active');
-            } else {
-                autoRefreshInterval = setInterval(() => {
-                    refreshData();
-                    updateCurrentTime();
-                }, 60000);
-                isAutoRefreshOn = true;
-                button.innerHTML = `
-                    <svg class="icon" viewBox="0 0 24 24">
-                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-                    </svg>
-                    Auto: EIN`;
-                button.classList.add('active');
-                refreshData();
-            }
-            
-            savePreferences(); // Save when auto-refresh state changes
-        }
-        
-        // Function to update last refresh time
-        function updateLastRefreshTime() {
-            const lastUpdate = document.getElementById('lastUpdate');
-            const now = new Date();
-            lastUpdate.textContent = `Zuletzt aktualisiert: ${now.toLocaleTimeString('de-DE')}`;
-        }
-        
-        // Scroll event listener for infinite loading
-        function handleScroll() {
-            const container = document.getElementById('dataContainer');
-            const scrollTop = container.scrollTop;
-            const scrollHeight = container.scrollHeight;
-            const clientHeight = container.clientHeight;
-            
-            if (scrollTop + clientHeight >= scrollHeight - 100) {
-                loadMoreData();
-            }
-        }
-        
-        // Function to restore UI state from saved preferences
-        function restoreUIState() {
-            // Restore mode tabs
-            document.getElementById('departuresTab').classList.toggle('active', currentMode === 'departures');
-            document.getElementById('arrivalsTab').classList.toggle('active', currentMode === 'arrivals');
-            
-            // Restore transport filter checkboxes
-            Object.keys(transportFilter).forEach(mode => {
-                const checkbox = document.getElementById(`${mode}-check`);
-                if (checkbox) {
-                    if (transportFilter[mode]) {
-                        checkbox.classList.add('checked');
-                    } else {
-                        checkbox.classList.remove('checked');
-                    }
-                }
-            });
-            
-            // Restore auto-refresh button state
-            const autoRefreshBtn = document.getElementById('autoRefreshBtn');
-            if (isAutoRefreshOn) {
-                autoRefreshBtn.innerHTML = `
-                    <svg class="icon" viewBox="0 0 24 24">
-                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-                    </svg>
-                    Auto: EIN`;
-                autoRefreshBtn.classList.add('active');
-                
-                // Start auto-refresh interval
-                autoRefreshInterval = setInterval(() => {
-                    refreshData();
-                    updateCurrentTime();
-                }, 60000);
-            } else {
-                autoRefreshBtn.innerHTML = `
-                    <svg class="icon" viewBox="0 0 24 24">
-                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-                    </svg>
-                    Auto: AUS`;
-                autoRefreshBtn.classList.remove('active');
-            }
-            
-            // Update loading text based on mode
-            const loadingText = document.getElementById('loadingText');
-            loadingText.textContent = currentMode === 'departures' ? 'Lade weitere Abfahrten...' : 'Lade weitere Ankünfte...';
-        }
-        
-        // Initialize
-        window.addEventListener('load', function() {
-            updateCurrentTime();
-            setInterval(updateCurrentTime, 1000);
-            
-            // Restore UI state from saved preferences
-            restoreUIState();
-            
-            // Load data with saved preferences
-            refreshData();
-            
-            const container = document.getElementById('dataContainer');
-            container.addEventListener('scroll', handleScroll, { passive: true });
-            
-            console.log('App initialized with saved preferences:', savedPreferences);
-        });
-    </script>
-</body>
-</html>
+                debugLog(`Data refresh
