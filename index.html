@@ -514,6 +514,7 @@
             font-size: 0.9rem;
             min-width: 40px;
             text-align: center;
+            opacity: 1; /* Fully opaque */
         }
         
         .journey-line-badge.s-bahn { background: #4caf50; }
@@ -599,7 +600,8 @@
             top: 0;
             bottom: 0;
             width: 2px;
-            background: rgba(255, 255, 255, 0.3);
+            background: white; /* Fully opaque line */
+            opacity: 1;
         }
         
         .journey-stop {
@@ -611,13 +613,14 @@
         .journey-stop::before {
             content: '';
             position: absolute;
-            left: 9px;
+            left: 9px; /* Moved 2px left (was 11px) */
             top: 50%;
             transform: translateY(-50%);
-            width: 12px;
-            height: 12px;
+            width: 8px;
+            height: 8px;
             border-radius: 50%;
-            background: rgba(255, 255, 255, 0.3);
+            background: white; /* Fully opaque white circles */
+            opacity: 1;
             border: 2px solid #000050;
         }
         
@@ -629,9 +632,13 @@
         }
         
         .journey-stop.current::before {
+            left: 19px; /* Adjusted for margin change (9px + 10px) */
             background: #4caf50;
+            opacity: 1;
             border-color: #4caf50;
             box-shadow: 0 0 0 4px rgba(76, 175, 80, 0.3);
+            width: 8px;
+            height: 8px;
         }
         
         .journey-stop.passed {
@@ -640,6 +647,7 @@
         
         .journey-stop.passed::before {
             background: #666;
+            opacity: 1;
         }
         
         .journey-stop-name {
@@ -651,6 +659,26 @@
         .journey-stop-time {
             font-size: 0.85rem;
             opacity: 0.8;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .journey-stop-delay {
+            font-size: 0.75rem;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-weight: 500;
+        }
+        
+        .journey-stop-delay.on-time {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4caf50;
+        }
+        
+        .journey-stop-delay.delayed {
+            background: rgba(255, 87, 34, 0.2);
+            color: #ff5722;
         }
         
         .journey-stop.current .journey-stop-name {
@@ -1250,8 +1278,31 @@
             }
         }
         
+        // Function to calculate delay for individual stops
+        function getStopDelayInfo(plannedTime, actualTime) {
+            if (!actualTime || !plannedTime) {
+                return { text: '', class: '' };
+            }
+            
+            const plannedDate = new Date(plannedTime);
+            const actualDate = new Date(actualTime);
+            const delayMinutes = Math.round((actualDate - plannedDate) / 60000);
+            
+            if (delayMinutes <= 0) {
+                return { text: 'pünktlich', class: 'on-time' };
+            } else {
+                return { text: `+${delayMinutes}`, class: 'delayed' };
+            }
+        }
+        
         // Journey popup functions
         function openJourneyPopup(departureItem) {
+            // Don't open journey popup for cancelled trains
+            if (departureItem.cancelled === true) {
+                console.log('Journey popup blocked: train is cancelled');
+                return;
+            }
+            
             const overlay = document.getElementById('journeyOverlay');
             const lineBadge = document.getElementById('journeyLineBadge');
             const destination = document.getElementById('journeyDestination');
@@ -1367,18 +1418,53 @@
                                 const isCurrent = index === currentStopIndex;
                                 const departureTime = stop.departure || stop.plannedDeparture;
                                 const arrivalTime = stop.arrival || stop.plannedArrival;
+                                const plannedDepartureTime = stop.plannedDeparture;
+                                const plannedArrivalTime = stop.plannedArrival;
                                 
                                 let timeDisplay = '';
+                                let delayDisplay = '';
+                                
                                 if (index === 0 && departureTime) {
                                     timeDisplay = `ab ${formatTime(departureTime)}`;
+                                    if (plannedDepartureTime && departureTime !== plannedDepartureTime) {
+                                        const delay = getStopDelayInfo(plannedDepartureTime, departureTime);
+                                        if (delay.text) {
+                                            delayDisplay = `<span class="journey-stop-delay ${delay.class}">${delay.text}</span>`;
+                                        }
+                                    }
                                 } else if (index === stopovers.length - 1 && arrivalTime) {
                                     timeDisplay = `an ${formatTime(arrivalTime)}`;
+                                    if (plannedArrivalTime && arrivalTime !== plannedArrivalTime) {
+                                        const delay = getStopDelayInfo(plannedArrivalTime, arrivalTime);
+                                        if (delay.text) {
+                                            delayDisplay = `<span class="journey-stop-delay ${delay.class}">${delay.text}</span>`;
+                                        }
+                                    }
                                 } else if (arrivalTime && departureTime) {
                                     timeDisplay = `an ${formatTime(arrivalTime)} / ab ${formatTime(departureTime)}`;
+                                    // Show delay for departure time
+                                    if (plannedDepartureTime && departureTime !== plannedDepartureTime) {
+                                        const delay = getStopDelayInfo(plannedDepartureTime, departureTime);
+                                        if (delay.text) {
+                                            delayDisplay = `<span class="journey-stop-delay ${delay.class}">${delay.text}</span>`;
+                                        }
+                                    }
                                 } else if (arrivalTime) {
                                     timeDisplay = `an ${formatTime(arrivalTime)}`;
+                                    if (plannedArrivalTime && arrivalTime !== plannedArrivalTime) {
+                                        const delay = getStopDelayInfo(plannedArrivalTime, arrivalTime);
+                                        if (delay.text) {
+                                            delayDisplay = `<span class="journey-stop-delay ${delay.class}">${delay.text}</span>`;
+                                        }
+                                    }
                                 } else if (departureTime) {
                                     timeDisplay = `ab ${formatTime(departureTime)}`;
+                                    if (plannedDepartureTime && departureTime !== plannedDepartureTime) {
+                                        const delay = getStopDelayInfo(plannedDepartureTime, departureTime);
+                                        if (delay.text) {
+                                            delayDisplay = `<span class="journey-stop-delay ${delay.class}">${delay.text}</span>`;
+                                        }
+                                    }
                                 }
                                 
                                 let className = 'journey-stop';
@@ -1388,7 +1474,7 @@
                                 return `
                                     <li class="${className}">
                                         <div class="journey-stop-name">${stop.stop.name}</div>
-                                        ${timeDisplay ? `<div class="journey-stop-time">${timeDisplay}</div>` : ''}
+                                        ${timeDisplay || delayDisplay ? `<div class="journey-stop-time">${timeDisplay}${delayDisplay}</div>` : ''}
                                     </li>
                                 `;
                             }).join('')}
@@ -1453,7 +1539,7 @@
                 </div>
             `;
             
-            // Add click handler for journey popup
+            // Add click handler for journey popup (but not for cancelled trains)
             itemElement.addEventListener('click', () => {
                 openJourneyPopup(item);
             });
@@ -1587,7 +1673,7 @@
             lastUpdate.textContent = `Zuletzt aktualisiert: ${now.toLocaleTimeString('de-DE')}`;
         }
         
-        // Function to restore UI state from saved preferences
+                // Function to restore UI state from saved preferences
         function restoreUIState() {
             // Restore transport filter checkboxes
             Object.keys(transportFilter).forEach(mode => {
@@ -1642,3 +1728,4 @@
     </script>
 </body>
 </html>
+            
