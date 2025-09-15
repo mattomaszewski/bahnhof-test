@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Live Departures & Arrivals - Train Station Board</title>
+    <title>Live Departures - Train Station Board</title>
     <style>
         * {
             margin: 0;
@@ -127,40 +127,6 @@
             border-bottom: 1px solid #ffffff40;
             flex-shrink: 0;
             align-items: center;
-        }
-        
-        .segmented-control {
-            display: flex;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 4px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            overflow: hidden;
-        }
-        
-        .segment-btn {
-            background: transparent;
-            border: none;
-            color: white;
-            padding: 12px 24px;
-            cursor: pointer;
-            font-size: 1rem;
-            font-weight: 400;
-            transition: all 0.2s ease;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            border-right: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        
-        .segment-btn:last-child {
-            border-right: none;
-        }
-        
-        .segment-btn:hover {
-            background: rgba(255, 255, 255, 0.1);
-        }
-        
-        .segment-btn.active {
-            background: rgba(255, 255, 255, 0.4);
         }
         
         .controls-left {
@@ -335,6 +301,15 @@
             background: rgba(255, 255, 255, 0.05);
         }
         
+        .departure-item.cancelled {
+            opacity: 0.6;
+            background: rgba(220, 20, 60, 0.1);
+        }
+        
+        .departure-item.cancelled:hover {
+            background: rgba(220, 20, 60, 0.15);
+        }
+        
         .line-info {
             display: flex;
             align-items: center;
@@ -363,10 +338,6 @@
             background: #2196f3;
         }
         
-        .line-badge.long-distance {
-            background: #dc143c;
-        }
-        
         .line-badge.metro {
             background: #1976d2;
         }
@@ -379,8 +350,9 @@
             background: #9c27b0;
         }
         
-        .line-badge.ferry {
-            background: #00bcd4;
+        .line-badge.cancelled {
+            background: #666;
+            text-decoration: line-through;
         }
         
         .destination-info {
@@ -393,6 +365,11 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+        }
+        
+        .destination.cancelled {
+            text-decoration: line-through;
+            opacity: 0.8;
         }
         
         .platform-info {
@@ -410,6 +387,11 @@
             font-size: 2.8rem;
             font-weight: 300;
             line-height: 1;
+        }
+        
+        .departure-time.cancelled {
+            text-decoration: line-through;
+            opacity: 0.8;
         }
         
         .time-suffix {
@@ -432,6 +414,11 @@
             font-weight: 500;
         }
         
+        .delay-info.cancelled {
+            color: #dc143c;
+            font-weight: 600;
+        }
+        
         .in-minutes {
             font-size: 1.8rem;
             opacity: 0.9;
@@ -449,17 +436,6 @@
             padding: 80px 30px;
             font-size: 1.5rem;
             opacity: 0.7;
-        }
-        
-        .loading-more {
-            text-align: center;
-            padding: 20px;
-            font-size: 1.1rem;
-            opacity: 0.8;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
         }
         
         .last-update {
@@ -481,219 +457,238 @@
             border-top-color: white;
             animation: spin 1s ease-in-out infinite;
         }
-
-        /* Debug info styles */
-        .debug-info {
-            background: rgba(255, 255, 0, 0.1);
-            border: 1px solid rgba(255, 255, 0, 0.3);
-            padding: 10px;
-            margin: 10px 30px;
-            border-radius: 4px;
-            font-size: 0.9rem;
-            font-family: monospace;
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
-
-        /* Journey Overlay Styles */
+        
+        /* Journey Popup Styles */
         .journey-overlay {
             position: fixed;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 80, 0.95);
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
             backdrop-filter: blur(10px);
-            display: none;
             z-index: 10000;
-            overflow-y: auto;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
         }
         
-        .journey-modal {
-            max-width: 800px;
-            margin: 40px auto;
+        .journey-popup {
             background: #000050;
             border: 2px solid rgba(255, 255, 255, 0.3);
             border-radius: 12px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            max-width: 600px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
             position: relative;
         }
         
         .journey-header {
-            padding: 30px;
+            padding: 20px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.2);
             display: flex;
             justify-content: space-between;
             align-items: center;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px 10px 0 0;
         }
         
         .journey-title {
-            flex: 1;
-        }
-        
-        .journey-line {
-            font-size: 1.5rem;
-            font-weight: 400;
-            margin-bottom: 8px;
             display: flex;
             align-items: center;
-            gap: 15px;
+            gap: 12px;
         }
         
-        .journey-route {
-            font-size: 1.8rem;
+        .journey-line-badge {
+            background: #dc143c;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 16px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            min-width: 40px;
+            text-align: center;
+        }
+        
+        .journey-line-badge.s-bahn { background: #4caf50; }
+        .journey-line-badge.regional { background: #2196f3; }
+        .journey-line-badge.metro { background: #1976d2; }
+        .journey-line-badge.tram { background: #e91e63; }
+        .journey-line-badge.bus { background: #9c27b0; }
+        
+        .journey-destination {
+            font-size: 1.5rem;
             font-weight: 300;
-            opacity: 0.9;
         }
         
         .journey-close {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: none;
+            border: 2px solid rgba(255, 255, 255, 0.3);
             color: white;
-            width: 40px;
-            height: 40px;
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
             cursor: pointer;
+            font-size: 1.2rem;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.5rem;
-            font-weight: 300;
             transition: all 0.2s ease;
         }
         
         .journey-close:hover {
-            background: rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.5);
         }
         
         .journey-content {
-            padding: 0;
+            padding: 20px;
+        }
+        
+        .journey-info {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+        }
+        
+        .journey-info-item {
+            text-align: center;
+        }
+        
+        .journey-info-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-bottom: 5px;
+        }
+        
+        .journey-info-value {
+            font-size: 1.2rem;
+            font-weight: 400;
+        }
+        
+        .journey-route {
+            margin-top: 20px;
+        }
+        
+        .journey-route-title {
+            font-size: 1.1rem;
+            font-weight: 500;
+            margin-bottom: 15px;
+            opacity: 0.9;
         }
         
         .journey-stops {
             list-style: none;
-            margin: 0;
-            padding: 0;
+            position: relative;
+        }
+        
+        .journey-stops::before {
+            content: '';
+            position: absolute;
+            left: 15px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: rgba(255, 255, 255, 0.3);
         }
         
         .journey-stop {
-            display: flex;
-            align-items: center;
-            padding: 20px 30px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             position: relative;
-            transition: background 0.2s ease;
+            padding: 12px 0 12px 40px;
+            transition: all 0.2s ease;
         }
         
-        .journey-stop:hover {
-            background: rgba(255, 255, 255, 0.03);
+        .journey-stop::before {
+            content: '';
+            position: absolute;
+            left: 9px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            border: 2px solid #000050;
         }
         
         .journey-stop.current {
-            background: rgba(76, 175, 80, 0.1);
-            border-left: 4px solid #4caf50;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            margin: 0 -10px;
+            padding: 12px 10px 12px 50px;
+        }
+        
+        .journey-stop.current::before {
+            background: #4caf50;
+            border-color: #4caf50;
+            box-shadow: 0 0 0 4px rgba(76, 175, 80, 0.3);
         }
         
         .journey-stop.passed {
             opacity: 0.6;
         }
         
-        .journey-stop-indicator {
-            width: 16px;
-            height: 16px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.3);
-            border: 3px solid #000050;
-            position: relative;
-            margin-right: 20px;
-            flex-shrink: 0;
-        }
-        
-        .journey-stop.current .journey-stop-indicator {
-            background: #4caf50;
-            box-shadow: 0 0 15px rgba(76, 175, 80, 0.5);
-        }
-        
-        .journey-stop.passed .journey-stop-indicator {
-            background: rgba(255, 255, 255, 0.6);
-        }
-        
-        .journey-stop-connector {
-            position: absolute;
-            left: 37px;
-            top: 36px;
-            width: 2px;
-            height: calc(100% - 16px);
-            background: rgba(255, 255, 255, 0.2);
-        }
-        
-        .journey-stop:last-child .journey-stop-connector {
-            display: none;
-        }
-        
-        .journey-stop.current .journey-stop-connector {
-            background: #4caf50;
-            box-shadow: 0 0 10px rgba(76, 175, 80, 0.3);
-        }
-        
-        .journey-stop-info {
-            flex: 1;
-            min-width: 0;
+        .journey-stop.passed::before {
+            background: #666;
         }
         
         .journey-stop-name {
-            font-size: 1.4rem;
-            font-weight: 400;
-            margin-bottom: 4px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        
-        .journey-stop-platform {
             font-size: 1rem;
-            opacity: 0.7;
-        }
-        
-        .journey-stop-times {
-            text-align: right;
-            flex-shrink: 0;
-            margin-left: 20px;
+            font-weight: 400;
+            margin-bottom: 2px;
         }
         
         .journey-stop-time {
-            font-size: 1.3rem;
-            font-weight: 300;
-            margin-bottom: 4px;
+            font-size: 0.85rem;
+            opacity: 0.8;
         }
         
-        .journey-stop-delay {
-            font-size: 0.9rem;
-        }
-        
-        .journey-stop-delay.on-time {
-            color: #4caf50;
-        }
-        
-        .journey-stop-delay.delayed {
-            color: #ff5722;
+        .journey-stop.current .journey-stop-name {
             font-weight: 500;
+            color: #4caf50;
         }
         
         .journey-loading {
             text-align: center;
-            padding: 60px 30px;
-            font-size: 1.2rem;
+            padding: 40px;
+            font-size: 1.1rem;
             opacity: 0.8;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
         }
         
         .journey-error {
             text-align: center;
-            padding: 60px 30px;
-            font-size: 1.2rem;
+            padding: 40px;
             color: #ff5722;
+            font-size: 1rem;
         }
         
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+        .journey-refresh {
+            margin-top: 15px;
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        
+        .journey-refresh:hover {
+            background: rgba(255, 255, 255, 0.15);
         }
         
         @media (max-width: 999px) {
@@ -737,17 +732,6 @@
                 gap: 8px;
                 order: 2;
                 flex-wrap: wrap;
-            }
-            
-            .segmented-control {
-                order: 1;
-                margin-bottom: 10px;
-            }
-            
-            .segment-btn {
-                padding: 8px 16px;
-                font-size: 0.9rem;
-                flex: 1;
             }
             
             .btn {
@@ -839,49 +823,26 @@
                 font-size: 1.2rem;
             }
             
-            .loading-more {
-                padding: 15px;
-                font-size: 1rem;
-            }
-
-            .debug-info {
-                margin: 10px 15px;
-                padding: 8px;
-                font-size: 0.8rem;
-            }
-
-            /* Journey overlay mobile styles */
-            .journey-modal {
-                margin: 20px;
-                max-width: none;
+            .journey-popup {
+                max-width: 95%;
+                margin: 10px;
             }
             
             .journey-header {
-                padding: 20px;
+                padding: 15px;
             }
             
-            .journey-line {
+            .journey-destination {
                 font-size: 1.2rem;
             }
             
-            .journey-route {
-                font-size: 1.4rem;
+            .journey-content {
+                padding: 15px;
             }
             
-            .journey-stop {
-                padding: 15px 20px;
-            }
-            
-            .journey-stop-name {
-                font-size: 1.2rem;
-            }
-            
-            .journey-stop-time {
-                font-size: 1.1rem;
-            }
-            
-            .journey-stop-connector {
-                left: 27px;
+            .journey-info {
+                grid-template-columns: 1fr;
+                gap: 10px;
             }
         }
     </style>
@@ -903,11 +864,6 @@
         </div>
         
         <div class="controls">
-            <div class="segmented-control">
-                <button class="segment-btn active" onclick="switchMode('departures')" id="departuresTab">Abfahrten</button>
-                <button class="segment-btn" onclick="switchMode('arrivals')" id="arrivalsTab">Ankünfte</button>
-            </div>
-            
             <div class="controls-left">
                 <button class="btn" onclick="refreshData()">
                     <svg class="icon" viewBox="0 0 24 24">
@@ -976,67 +932,38 @@
                     Lade Abfahrtsdaten für Berlin Hauptbahnhof...
                 </div>
             </div>
-            <div class="loading-more" id="loadingMore" style="display: none;">
-                <div class="loading"></div>
-                <span id="loadingText">Lade weitere Abfahrten...</span>
-            </div>
         </div>
         
         <div class="last-update" id="lastUpdate"></div>
     </div>
 
-    <!-- Journey Progress Overlay -->
+    <!-- Journey Popup -->
     <div class="journey-overlay" id="journeyOverlay">
-        <div class="journey-modal">
+        <div class="journey-popup">
             <div class="journey-header">
                 <div class="journey-title">
-                    <div class="journey-line" id="journeyLine">
-                        <div class="line-badge" id="journeyLineBadge">S1</div>
-                        <span id="journeyLineText">S1</span>
-                    </div>
-                    <div class="journey-route" id="journeyRoute">Berlin Hbf → Wannsee</div>
+                    <div class="journey-line-badge" id="journeyLineBadge">RE1</div>
+                    <div class="journey-destination" id="journeyDestination">Frankfurt (Oder)</div>
                 </div>
-                <button class="journey-close" onclick="closeJourneyOverlay()" aria-label="Schließen">&times;</button>
+                <button class="journey-close" onclick="closeJourneyPopup()">×</button>
             </div>
             <div class="journey-content" id="journeyContent">
                 <div class="journey-loading">
                     <div class="loading"></div>
-                    <div style="margin-top: 15px;">Lade Fahrtverlauf...</div>
+                    <span>Lade Reiseverlauf...</span>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // Enable debug mode
-        const DEBUG = true;
-        
-        function debugLog(message, data = null) {
-            if (DEBUG) {
-                console.log(`[DEBUG] ${message}`, data || '');
-                
-                // Also show debug info in UI
-                let debugDiv = document.getElementById('debug-info');
-                if (!debugDiv) {
-                    debugDiv = document.createElement('div');
-                    debugDiv.id = 'debug-info';
-                    debugDiv.className = 'debug-info';
-                    document.querySelector('.departures-container').appendChild(debugDiv);
-                }
-                
-                const timestamp = new Date().toLocaleTimeString();
-                debugDiv.innerHTML = `${timestamp}: ${message}${data ? '<br>' + JSON.stringify(data, null, 2) : ''}`;
-            }
-        }
-
         // Local storage key for user preferences
         const STORAGE_KEY = 'train-board-preferences';
         
         // Default preferences
         const defaultPreferences = {
-            selectedStation: '8011160', // Berlin Hbf ID
+            selectedStation: null,
             selectedStationName: 'Berlin Hbf',
-            currentMode: 'departures',
             isAutoRefreshOn: false,
             transportFilter: {
                 's-bahn': true,
@@ -1055,10 +982,11 @@
                 const stored = localStorage.getItem(STORAGE_KEY);
                 if (stored) {
                     const parsed = JSON.parse(stored);
+                    // Merge with defaults to ensure all properties exist
                     return { ...defaultPreferences, ...parsed };
                 }
             } catch (error) {
-                debugLog('Error loading preferences from localStorage:', error);
+                console.warn('Error loading preferences from localStorage:', error);
             }
             return { ...defaultPreferences };
         }
@@ -1069,14 +997,13 @@
                 const preferences = {
                     selectedStation: userPreferences.selectedStation,
                     selectedStationName: userPreferences.selectedStationName,
-                    currentMode: currentMode,
                     isAutoRefreshOn: isAutoRefreshOn,
                     transportFilter: { ...transportFilter }
                 };
                 localStorage.setItem(STORAGE_KEY, JSON.stringify(preferences));
-                debugLog('Preferences saved:', preferences);
+                console.log('Preferences saved:', preferences);
             } catch (error) {
-                debugLog('Error saving preferences to localStorage:', error);
+                console.warn('Error saving preferences to localStorage:', error);
             }
         }
         
@@ -1099,10 +1026,11 @@
         let autoRefreshInterval = null;
         let isAutoRefreshOn = savedPreferences.isAutoRefreshOn;
         let currentData = [];
-        let isLoading = false;
-        let hasMoreData = true;
         let currentStationId = userPreferences.selectedStation;
-        let currentMode = savedPreferences.currentMode;
+        
+        // Journey popup variables
+        let journeyRefreshInterval = null;
+        let currentJourneyItem = null;
 
         // Initialize with saved station
         searchInput.value = userPreferences.selectedStationName;
@@ -1122,104 +1050,50 @@
 
             searchTimeout = setTimeout(async () => {
                 try {
-                    debugLog(`Searching for stations: ${query}`);
-                    
-                    // Try different API endpoints for station search
-                    let response;
-                    let stations = [];
-                    
-                    // Primary API endpoint
-                    try {
-                        const apiUrl = `https://v6.vbb.transport.rest/locations?query=${encodeURIComponent(query)}&results=7`;
-                        debugLog('API URL:', apiUrl);
-                        response = await fetch(apiUrl, {
-                            headers: {
-                                'Accept': 'application/json',
-                                'User-Agent': 'TrainBoard/1.0'
-                            }
-                        });
-                        
-                        if (response.ok) {
-                            stations = await response.json();
-                            debugLog('Station search results:', stations);
-                        } else {
-                            throw new Error(`API returned ${response.status}: ${response.statusText}`);
-                        }
-                    } catch (apiError) {
-                        debugLog('Primary API failed, trying fallback', apiError);
-                        
-                        // Fallback to hardcoded stations
-                        stations = getHardcodedStations(query);
-                    }
+                    const response = await fetch(`https://v6.vbb.transport.rest/locations?query=${encodeURIComponent(query)}&results=7`);
+                    const stations = await response.json();
 
                     suggestionsBox.innerHTML = '';
-                    
-                    if (Array.isArray(stations)) {
-                        stations.forEach(station => {
-                            if (!station.name) return;
-                            const stationName = station.name;
-                            const stationId = station.id;
-                            
-                            const option = document.createElement('div');
-                            option.className = 'station-suggestion-item';
-                            option.textContent = stationName;
-                            option.addEventListener('click', () => {
-                                userPreferences.selectedStation = stationId;
-                                userPreferences.selectedStationName = stationName;
-                                currentStationId = stationId;
-                                searchInput.value = stationName;
-                                suggestionsBox.style.display = 'none';
-                                savePreferences();
-                                refreshData();
-                            });
-                            suggestionsBox.appendChild(option);
+                    stations.forEach(station => {
+                        if (!station.name) return;
+                        const option = document.createElement('div');
+                        option.className = 'station-suggestion-item';
+                        option.textContent = station.name;
+                        option.addEventListener('click', () => {
+                            userPreferences.selectedStation = station.id;
+                            userPreferences.selectedStationName = station.name;
+                            currentStationId = station.id;
+                            searchInput.value = station.name;
+                            suggestionsBox.style.display = 'none';
+                            savePreferences(); // Save when station changes
+                            refreshData();
                         });
-                    }
+                        suggestionsBox.appendChild(option);
+                    });
 
                     suggestionsBox.style.display = stations.length ? 'block' : 'none';
                 } catch (err) {
-                    debugLog('Station search error:', err);
-                    suggestionsBox.style.display = 'none';
+                    console.error('Station search error:', err);
                 }
             }, 300);
         });
 
-        // Hardcoded stations for fallback
-        function getHardcodedStations(query) {
-            const stations = [
-                { id: '8011160', name: 'Berlin Hauptbahnhof' },
-                { id: '8010255', name: 'Berlin Ostbahnhof' },
-                { id: '8089021', name: 'Berlin Alexanderplatz' },
-                { id: '8089100', name: 'Berlin Friedrichstraße' },
-                { id: '8089118', name: 'Berlin Hackescher Markt' },
-                { id: '8089073', name: 'Berlin Potsdamer Platz' },
-                { id: '8089007', name: 'Berlin Anhalter Bahnhof' },
-                { id: '8010037', name: 'Berlin Gesundbrunnen' },
-                { id: '8010050', name: 'Berlin-Charlottenburg' },
-                { id: '8010205', name: 'Berlin Ostkreuz' },
-                { id: '8013456', name: 'Berlin Südkreuz' },
-                { id: '8010404', name: 'Berlin-Wannsee' },
-                { id: '8010159', name: 'Berlin-Spandau' }
-            ];
-            
-            return stations.filter(station => 
-                station.name.toLowerCase().includes(query.toLowerCase())
-            ).slice(0, 7);
-        }
-
         // Hide dropdowns when clicking outside
         document.addEventListener('click', (e) => {
+            // Hide station suggestions
             if (!searchInput.contains(e.target) && !suggestionsBox.contains(e.target)) {
                 suggestionsBox.style.display = 'none';
             }
+            // Hide transport dropdown
             const transportDropdown = document.getElementById('transportDropdown');
             const transportBtn = document.getElementById('transportFilterBtn');
             if (!transportBtn.contains(e.target) && !transportDropdown.contains(e.target)) {
                 transportDropdown.style.display = 'none';
                 transportBtn.classList.remove('active');
             }
+            // Close journey popup when clicking outside
             if (e.target.id === 'journeyOverlay') {
-                closeJourneyOverlay();
+                closeJourneyPopup();
             }
         });
 
@@ -1247,8 +1121,9 @@
                 checkbox.classList.remove('checked');
             }
             
-            savePreferences();
+            savePreferences(); // Save when transport filter changes
             
+            // Refresh data to apply filter
             if (currentStationId) {
                 refreshData();
             }
@@ -1260,8 +1135,9 @@
                 document.getElementById(`${mode}-check`).classList.add('checked');
             });
             
-            savePreferences();
+            savePreferences(); // Save when transport filter is reset
             
+            // Refresh data to apply filter
             if (currentStationId) {
                 refreshData();
             }
@@ -1279,7 +1155,6 @@
         
         // Function to format time
         function formatTime(dateString) {
-            if (!dateString) return '--:--';
             const date = new Date(dateString);
             return date.toLocaleTimeString('de-DE', { 
                 hour: '2-digit', 
@@ -1289,7 +1164,6 @@
         
         // Function to calculate minutes until departure/arrival
         function getMinutesUntil(dateString) {
-            if (!dateString) return null;
             const now = new Date();
             const time = new Date(dateString);
             const diffMinutes = Math.round((time - now) / 60000);
@@ -1300,35 +1174,40 @@
         function getLineType(lineName) {
             if (!lineName) return 'default';
             
-            const upperName = lineName.toUpperCase();
-            
-            if (upperName.startsWith('ICE') || upperName.startsWith('IC ') || upperName.startsWith('EC ') || 
-                upperName.startsWith('TGV') || upperName.startsWith('RJ') || upperName.startsWith('NJ') ||
-                upperName.startsWith('EN') || upperName.startsWith('CNL')) {
+            // Long distance trains (Fernverkehr)
+            if (lineName.startsWith('ICE') || lineName.startsWith('IC ') || lineName.startsWith('ECE') || 
+                lineName.startsWith('TGV') || lineName.startsWith('RJ') || lineName.startsWith('NJ') ||
+                lineName.startsWith('EN') || lineName.startsWith('CNL')) {
                 return 'long-distance';
             }
             
-            if (upperName.startsWith('S')) return 's-bahn';
+            // S-Bahn
+            if (lineName.startsWith('S')) return 's-bahn';
             
-            if (upperName.startsWith('RE') || upperName.startsWith('RB') || upperName.startsWith('IRE') || 
-                upperName.startsWith('ALX') || upperName.startsWith('BOB') || upperName.startsWith('BRB') ||
-                upperName.startsWith('HEX') || upperName.startsWith('MEX') || upperName.startsWith('OE')) {
+            // Regional trains
+            if (lineName.startsWith('RE') || lineName.startsWith('RB') || lineName.startsWith('IRE') || 
+                lineName.startsWith('ALX') || lineName.startsWith('BOB') || lineName.startsWith('BRB') ||
+                lineName.startsWith('HEX') || lineName.startsWith('MEX') || lineName.startsWith('OE')) {
                 return 'regional';
             }
             
-            if (upperName.startsWith('U')) return 'metro';
+            // U-Bahn (Metro)
+            if (lineName.startsWith('U')) return 'metro';
             
-            if (upperName.includes('TRAM') || upperName.startsWith('M') || /^\d+$/.test(upperName) ||
-                upperName.startsWith('STR')) {
+            // Tram (can be number-only or with prefix)
+            if (lineName.includes('Tram') || lineName.startsWith('M') || /^\d+$/.test(lineName) ||
+                lineName.startsWith('STR')) {
                 return 'tram';
             }
             
-            if (upperName.includes('FÄHRE') || upperName.includes('FERRY') || upperName.startsWith('F')) {
+            // Ferry
+            if (lineName.includes('Fähre') || lineName.includes('Ferry') || lineName.startsWith('F')) {
                 return 'ferry';
             }
             
-            if (upperName.includes('BUS') || upperName.startsWith('X') || upperName.startsWith('N') ||
-                upperName.includes('EXPRESS')) {
+            // Bus (including various bus types)
+            if (lineName.includes('Bus') || lineName.startsWith('X') || lineName.startsWith('N') ||
+                lineName.includes('Express')) {
                 return 'bus';
             }
             
@@ -1337,20 +1216,32 @@
         
         // Function to check if item should be filtered out
         function shouldFilterItem(item) {
-            if (!item.line || !item.line.name) return false;
-            const lineType = getLineType(item.line.name);
+            const lineType = getLineType(item.line ? item.line.name : '');
             return transportFilter[lineType] === false;
         }
         
-        // Function to calculate delay
-        function getDelayInfo(scheduled, realtime) {
-            if (!realtime || !scheduled) {
+        // Function to calculate delay with cancellation support
+        function getDelayInfo(item) {
+            if (!item) {
                 return { text: 'pünktlich', class: 'on-time' };
             }
             
-            const scheduledTime = new Date(scheduled);
-            const realtimeTime = new Date(realtime);
-            const delayMinutes = Math.round((realtimeTime - scheduledTime) / 60000);
+            // Check if the departure is cancelled
+            if (item.cancelled === true) {
+                return { text: 'AUSFALL', class: 'cancelled' };
+            }
+            
+            const plannedTime = item.plannedWhen;
+            const actualTime = item.when;
+            
+            // If there's no realtime data, assume on-time
+            if (!actualTime || !plannedTime) {
+                return { text: 'pünktlich', class: 'on-time' };
+            }
+            
+            const plannedDate = new Date(plannedTime);
+            const actualDate = new Date(actualTime);
+            const delayMinutes = Math.round((actualDate - plannedDate) / 60000);
             
             if (delayMinutes <= 0) {
                 return { text: 'pünktlich', class: 'on-time' };
@@ -1359,183 +1250,306 @@
             }
         }
         
-        // Function to switch between departures and arrivals
-        function switchMode(mode) {
-            if (mode === currentMode) return;
+        // Journey popup functions
+        function openJourneyPopup(departureItem) {
+            const overlay = document.getElementById('journeyOverlay');
+            const lineBadge = document.getElementById('journeyLineBadge');
+            const destination = document.getElementById('journeyDestination');
+            const content = document.getElementById('journeyContent');
             
-            currentMode = mode;
-            currentData = [];
-            hasMoreData = true;
+            currentJourneyItem = departureItem;
             
-            document.getElementById('departuresTab').classList.toggle('active', mode === 'departures');
-            document.getElementById('arrivalsTab').classList.toggle('active', mode === 'arrivals');
+            // Set header info
+            const lineType = getLineType(departureItem.line ? departureItem.line.name : '');
+            lineBadge.className = `journey-line-badge ${lineType}`;
+            lineBadge.textContent = departureItem.line ? departureItem.line.name : 'Unknown';
+            destination.textContent = departureItem.destination ? departureItem.destination.name : 'Unknown';
             
-            const loadingText = document.getElementById('loadingText');
-            loadingText.textContent = mode === 'departures' ? 'Lade weitere Abfahrten...' : 'Lade weitere Ankünfte...';
+            // Show loading state
+            content.innerHTML = `
+                <div class="journey-loading">
+                    <div class="loading"></div>
+                    <span>Lade Reiseverlauf...</span>
+                </div>
+            `;
             
-            savePreferences();
+            // Show popup
+            overlay.style.display = 'flex';
             
-            if (currentStationId) {
-                refreshData();
+            // Load journey data
+            loadJourneyData(departureItem);
+            
+            // Start auto-refresh for journey
+            if (journeyRefreshInterval) {
+                clearInterval(journeyRefreshInterval);
+            }
+            journeyRefreshInterval = setInterval(() => {
+                loadJourneyData(departureItem);
+            }, 60000); // Refresh every minute
+        }
+        
+        function closeJourneyPopup() {
+            const overlay = document.getElementById('journeyOverlay');
+            overlay.style.display = 'none';
+            
+            // Clear refresh interval
+            if (journeyRefreshInterval) {
+                clearInterval(journeyRefreshInterval);
+                journeyRefreshInterval = null;
+            }
+            
+            currentJourneyItem = null;
+        }
+        
+        async function loadJourneyData(departureItem) {
+            const content = document.getElementById('journeyContent');
+            
+            try {
+                if (!departureItem.tripId) {
+                    throw new Error('No trip ID available for this departure');
+                }
+                
+                const response = await fetch(`https://v6.vbb.transport.rest/trips/${departureItem.tripId}`);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP Error! Status: ${response.status}`);
+                }
+                
+                const tripData = await response.json();
+                console.log('Journey data:', tripData);
+                
+                // Build journey info
+                const trip = tripData.trip || tripData;
+                const stopovers = trip.stopovers || [];
+                
+                if (stopovers.length === 0) {
+                    throw new Error('No stops found for this journey');
+                }
+                
+                // Find current position
+                const now = new Date();
+                let currentStopIndex = -1;
+                
+                for (let i = 0; i < stopovers.length; i++) {
+                    const stop = stopovers[i];
+                    const departureTime = stop.departure || stop.plannedDeparture;
+                    if (departureTime && new Date(departureTime) > now) {
+                        currentStopIndex = i;
+                        break;
+                    }
+                }
+                
+                // If no future stop found, train has likely completed journey
+                if (currentStopIndex === -1) {
+                    currentStopIndex = stopovers.length - 1;
+                }
+                
+                const currentStop = stopovers[currentStopIndex];
+                const delayInfo = getDelayInfo(departureItem);
+                
+                content.innerHTML = `
+                    <div class="journey-info">
+                        <div class="journey-info-item">
+                            <div class="journey-info-label">Status</div>
+                            <div class="journey-info-value">${delayInfo.text}</div>
+                        </div>
+                        <div class="journey-info-item">
+                            <div class="journey-info-label">Nächster Halt</div>
+                            <div class="journey-info-value">${currentStop.stop.name}</div>
+                        </div>
+                    </div>
+                    
+                    <div class="journey-route">
+                        <div class="journey-route-title">Reiseverlauf</div>
+                        <ul class="journey-stops">
+                            ${stopovers.map((stop, index) => {
+                                const isPassed = index < currentStopIndex;
+                                const isCurrent = index === currentStopIndex;
+                                const departureTime = stop.departure || stop.plannedDeparture;
+                                const arrivalTime = stop.arrival || stop.plannedArrival;
+                                
+                                let timeDisplay = '';
+                                if (index === 0 && departureTime) {
+                                    timeDisplay = `ab ${formatTime(departureTime)}`;
+                                } else if (index === stopovers.length - 1 && arrivalTime) {
+                                    timeDisplay = `an ${formatTime(arrivalTime)}`;
+                                } else if (arrivalTime && departureTime) {
+                                    timeDisplay = `an ${formatTime(arrivalTime)} / ab ${formatTime(departureTime)}`;
+                                } else if (arrivalTime) {
+                                    timeDisplay = `an ${formatTime(arrivalTime)}`;
+                                } else if (departureTime) {
+                                    timeDisplay = `ab ${formatTime(departureTime)}`;
+                                }
+                                
+                                let className = 'journey-stop';
+                                if (isPassed) className += ' passed';
+                                if (isCurrent) className += ' current';
+                                
+                                return `
+                                    <li class="${className}">
+                                        <div class="journey-stop-name">${stop.stop.name}</div>
+                                        ${timeDisplay ? `<div class="journey-stop-time">${timeDisplay}</div>` : ''}
+                                    </li>
+                                `;
+                            }).join('')}
+                        </ul>
+                    </div>
+                    
+                    <button class="journey-refresh" onclick="loadJourneyData(currentJourneyItem)">
+                        Aktualisieren
+                    </button>
+                `;
+                
+            } catch (error) {
+                console.error('Error loading journey data:', error);
+                content.innerHTML = `
+                    <div class="journey-error">
+                        <div>Fehler beim Laden des Reiseverlaufs</div>
+                        <div style="font-size: 0.9rem; margin-top: 10px; opacity: 0.8;">${error.message}</div>
+                        <button class="journey-refresh" onclick="loadJourneyData(currentJourneyItem)">
+                            Erneut versuchen
+                        </button>
+                    </div>
+                `;
             }
         }
         
-        // Function to create departure item HTML
+        // Function to create departure item with click handler (RESTORED ORIGINAL)
         function createDepartureItem(item) {
-            const delayInfo = getDelayInfo(item.plannedWhen, item.when);
-            const time = formatTime(item.when || item.plannedWhen);
-            const minutesUntil = getMinutesUntil(item.when || item.plannedWhen);
+            const delayInfo = getDelayInfo(item);
+            const isCancelled = item.cancelled === true;
+            
+            // Use actual time if available, otherwise planned time
+            const displayTime = item.when || item.plannedWhen;
+            const time = formatTime(displayTime);
+            const minutesUntil = getMinutesUntil(displayTime);
             const lineType = getLineType(item.line ? item.line.name : 'Unbekannt');
             
-            let destination, line, platform, originInfo = '';
+            const destination = item.destination ? item.destination.name : 'Unbekannt';
+            const line = item.line ? item.line.name : 'Unbekannt';
+            const platform = item.platform ? `Gleis ${item.platform}` : '';
             
-            if (currentMode === 'departures') {
-                destination = item.destination ? item.destination.name : 'Unbekannt';
-                line = item.line ? item.line.name : 'Unbekannt';
-                platform = item.platform ? `Gleis ${item.platform}` : '';
-            } else {
-                destination = item.origin ? item.origin.name : 'Unbekannt';
-                line = item.line ? item.line.name : 'Unbekannt';
-                platform = item.platform ? `Gleis ${item.platform}` : '';
-                originInfo = `<div class="from-origin">von ${destination}</div>`;
-            }
+            // Add cancelled class modifiers
+            const cancelledClass = isCancelled ? ' cancelled' : '';
+            const lineBadgeClass = isCancelled ? ` cancelled` : '';
+            const destinationClass = isCancelled ? ' cancelled' : '';
+            const timeClass = isCancelled ? ' cancelled' : '';
             
             const itemElement = document.createElement('div');
-            itemElement.className = 'departure-item';
-            itemElement.setAttribute('data-trip-id', item.tripId || `trip_${Date.now()}_${Math.random()}`);
-            itemElement.setAttribute('data-line', line);
-            itemElement.setAttribute('data-destination', currentMode === 'departures' ? destination : item.origin?.name || 'Unbekannt');
-            
+            itemElement.className = `departure-item${cancelledClass}`;
             itemElement.innerHTML = `
                 <div class="line-info">
-                    <div class="line-badge ${lineType}">${line}</div>
+                    <div class="line-badge ${lineType}${lineBadgeClass}">${line}</div>
                 </div>
                 <div class="destination-info">
-                    <div class="destination">${currentMode === 'departures' ? destination : line}</div>
-                    ${currentMode === 'arrivals' ? originInfo : ''}
+                    <div class="destination${destinationClass}">${destination}</div>
                     ${platform ? `<div class="platform-info">${platform}</div>` : ''}
                 </div>
                 <div class="time-info">
-                    <div class="departure-time">${time}<span class="time-suffix">Uhr</span></div>
+                    <div class="departure-time${timeClass}">${time}<span class="time-suffix">Uhr</span></div>
                     <div class="delay-info ${delayInfo.class}">${delayInfo.text}</div>
-                    ${minutesUntil !== null ? (minutesUntil > 0 ? `<div class="in-minutes">in ${minutesUntil} Min</div>` : 
-                      minutesUntil === 0 ? `<div class="in-minutes">jetzt</div>` : '') : ''}
+                    ${!isCancelled && minutesUntil > 0 ? `<div class="in-minutes">in ${minutesUntil} Min</div>` : 
+                      !isCancelled && minutesUntil === 0 ? `<div class="in-minutes">jetzt</div>` : ''}
                 </div>
             `;
+            
+            // Add click handler for journey popup
+            itemElement.addEventListener('click', () => {
+                openJourneyPopup(item);
+            });
+            
             return itemElement;
         }
         
-        // Function to add click handlers to departure items
-        function addDepartureClickHandlers() {
-            document.querySelectorAll('.departure-item').forEach(item => {
-                item.replaceWith(item.cloneNode(true));
-            });
-            
-            document.querySelectorAll('.departure-item').forEach(item => {
-                item.addEventListener('click', function() {
-                    const tripId = this.getAttribute('data-trip-id');
-                    const line = this.getAttribute('data-line');
-                    const destination = this.getAttribute('data-destination');
-                    
-                    openJourneyOverlay(tripId, line, destination);
-                });
-            });
-        }
-        
-        // Function to refresh data (departures or arrivals)
+        // Function to refresh data (RESTORED ORIGINAL)
         async function refreshData() {
             const statusElement = document.getElementById('status');
             const dataList = document.getElementById('data-list');
-            const modeText = currentMode === 'departures' ? 'Abfahrten' : 'Ankünfte';
             
-            debugLog(`Starting refresh for ${modeText} at station ${currentStationId}`);
-            
-            statusElement.innerHTML = `<div class="loading"></div>Lade ${modeText}...`;
+            statusElement.innerHTML = `<div class="loading"></div>Lade Abfahrten...`;
             currentData = [];
-            hasMoreData = true;
             
             try {
-                // Ensure we have a station ID
+                // If we don't have station ID, get it first (default to saved station or Berlin Hbf)
                 if (!currentStationId) {
-                    debugLog('No station ID, using default Berlin Hbf');
-                    currentStationId = '8011160';
-                    userPreferences.selectedStation = currentStationId;
-                    userPreferences.selectedStationName = 'Berlin Hauptbahnhof';
-                    searchInput.value = userPreferences.selectedStationName;
-                    savePreferences();
+                    const defaultQuery = userPreferences.selectedStationName;
+                    const stationResponse = await fetch(`https://v6.vbb.transport.rest/locations?query=${encodeURIComponent(defaultQuery)}&results=10`);
+                    
+                    if (!stationResponse.ok) {
+                        throw new Error('Station nicht gefunden');
+                    }
+                    
+                    const stations = await stationResponse.json();
+                    
+                    if (!stations || stations.length === 0) {
+                        throw new Error(`${defaultQuery} nicht gefunden`);
+                    }
+                    
+                    // Find exact match or fallback to first station
+                    const selectedStation = stations.find(station => 
+                        station.name.toLowerCase().includes(defaultQuery.toLowerCase())
+                    ) || stations[0];
+                    
+                    currentStationId = selectedStation.id;
+                    userPreferences.selectedStation = selectedStation.id;
+                    userPreferences.selectedStationName = selectedStation.name;
+                    searchInput.value = selectedStation.name;
+                    savePreferences(); // Save updated station info
                 }
                 
-                const endpoint = currentMode === 'departures' ? 'departures' : 'arrivals';
-                const apiUrl = `https://v6.vbb.transport.rest/stops/${currentStationId}/${endpoint}?duration=180&results=50&stopovers=false`;
-                
-                debugLog('Fetching data from API:', apiUrl);
-                
-                const response = await fetch(apiUrl, {
-                    headers: {
-                        'Accept': 'application/json',
-                        'User-Agent': 'TrainBoard/1.0'
-                    }
-                });
-                
-                debugLog('API Response status:', response.status);
+                // Get up to 200 departures in next 8 hours
+                const response = await fetch(`https://v6.vbb.transport.rest/stops/${currentStationId}/departures?duration=480&results=200`);
                 
                 if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    throw new Error(`HTTP Fehler! Status: ${response.status}`);
                 }
                 
                 const data = await response.json();
-                debugLog('API Response data:', data);
+                const items = data.departures || [];
                 
-                const items = currentMode === 'departures' ? data.departures : data.arrivals;
+                console.log(`refreshData: Received ${items.length} items from API`);
                 
-                if (!items || items.length === 0) {
-                    dataList.innerHTML = `<div class="no-data">Keine ${modeText.toLowerCase()} in den nächsten 3 Stunden gefunden.<br><br>Station: ${userPreferences.selectedStationName}</div>`;
-                    statusElement.innerHTML = `Keine ${modeText.toLowerCase()} gefunden`;
-                    debugLog('No items found in API response');
+                if (items.length === 0) {
+                    dataList.innerHTML = `<div class="no-data">Keine Abfahrten in den nächsten 8 Stunden geplant.</div>`;
+                    statusElement.innerHTML = `Keine Abfahrten gefunden`;
                     return;
                 }
                 
-                debugLog(`Found ${items.length} items before filtering`);
-                
                 // Filter items based on transport mode
                 const filteredItems = items.filter(item => !shouldFilterItem(item));
-                debugLog(`${filteredItems.length} items after filtering`);
+                console.log(`refreshData: ${filteredItems.length} items after filtering`);
                 
                 dataList.innerHTML = '';
                 currentData = filteredItems;
                 
-                if (filteredItems.length === 0) {
-                    dataList.innerHTML = `<div class="no-data">Alle ${modeText.toLowerCase()} wurden durch Filter ausgeblendet.<br><br>Bitte ändern Sie die Filtereinstellungen.</div>`;
-                    statusElement.innerHTML = `Alle ${modeText.toLowerCase()} gefiltert`;
-                    return;
-                }
+                // Count cancelled departures for status display
+                let cancelledCount = 0;
                 
-                filteredItems.forEach((item, index) => {
-                    try {
-                        const itemElement = createDepartureItem(item);
-                        dataList.appendChild(itemElement);
-                    } catch (itemError) {
-                        debugLog(`Error creating item ${index}:`, itemError);
+                // Display ALL filtered items (up to 200)
+                for (const item of filteredItems) {
+                    if (item.cancelled === true) {
+                        cancelledCount++;
                     }
-                });
-                
-                addDepartureClickHandlers();
+                    const itemElement = createDepartureItem(item);
+                    dataList.appendChild(itemElement);
+                }
                 
                 const filteredCount = items.length - filteredItems.length;
                 const filterText = filteredCount > 0 ? ` (${filteredCount} gefiltert)` : '';
-                statusElement.innerHTML = `✅ ${filteredItems.length} ${modeText} von ${userPreferences.selectedStationName}${filterText}`;
+                const cancelledText = cancelledCount > 0 ? ` (${cancelledCount} Ausfälle)` : '';
+                statusElement.innerHTML = `✅ ${filteredItems.length} Abfahrten von ${userPreferences.selectedStationName}${filterText}${cancelledText}`;
                 updateLastRefreshTime();
                 
-                debugLog('Data refresh completed successfully');
+                console.log(`refreshData: Displaying ${filteredItems.length} items`);
                 
             } catch (error) {
-                debugLog(`Error loading ${currentMode}:`, error);
-                statusElement.innerHTML = `❌ Fehler beim Laden der ${modeText}: ${error.message}`;
-                dataList.innerHTML = `<div class="no-data">Fehler beim Laden der Daten:<br><br>${error.message}<br><br>Prüfen Sie Ihre Internetverbindung und versuchen Sie es erneut.</div>`;
+                console.error('Error loading departures:', error);
+                statusElement.innerHTML = `❌ Fehler beim Laden der Abfahrten. Bitte erneut versuchen.`;
+                dataList.innerHTML = `<div class="no-data">Fehler: ${error.message}<br><br>Die App verwendet die VBB (Berlin & Brandenburg) API.<br>Bitte überprüfen Sie Ihre Internetverbindung und versuchen Sie es erneut.</div>`;
             }
         }
         
-        // Function to toggle auto-refresh
+        // Function to toggle auto-refresh (RESTORED ORIGINAL)
         function toggleAutoRefresh() {
             const button = document.getElementById('autoRefreshBtn');
             
@@ -1560,9 +1574,10 @@
                     </svg>
                     Auto: EIN`;
                 button.classList.add('active');
+                refreshData();
             }
             
-            savePreferences();
+            savePreferences(); // Save when auto-refresh state changes
         }
         
         // Function to update last refresh time
@@ -1574,9 +1589,7 @@
         
         // Function to restore UI state from saved preferences
         function restoreUIState() {
-            document.getElementById('departuresTab').classList.toggle('active', currentMode === 'departures');
-            document.getElementById('arrivalsTab').classList.toggle('active', currentMode === 'arrivals');
-            
+            // Restore transport filter checkboxes
             Object.keys(transportFilter).forEach(mode => {
                 const checkbox = document.getElementById(`${mode}-check`);
                 if (checkbox) {
@@ -1588,6 +1601,7 @@
                 }
             });
             
+            // Restore auto-refresh button state
             const autoRefreshBtn = document.getElementById('autoRefreshBtn');
             if (isAutoRefreshOn) {
                 autoRefreshBtn.innerHTML = `
@@ -1597,186 +1611,23 @@
                     Auto: EIN`;
                 autoRefreshBtn.classList.add('active');
                 
+                // Start auto-refresh interval
                 autoRefreshInterval = setInterval(() => {
                     refreshData();
                     updateCurrentTime();
                 }, 60000);
+            } else {
+                autoRefreshBtn.innerHTML = `
+                    <svg class="icon" viewBox="0 0 24 24">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                    </svg>
+                    Auto: AUS`;
+                autoRefreshBtn.classList.remove('active');
             }
-            
-            const loadingText = document.getElementById('loadingText');
-            loadingText.textContent = currentMode === 'departures' ? 'Lade weitere Abfahrten...' : 'Lade weitere Ankünfte...';
-        }
-
-        // Journey overlay functions
-        function openJourneyOverlay(tripId, line, destination) {
-            const overlay = document.getElementById('journeyOverlay');
-            const lineBadge = document.getElementById('journeyLineBadge');
-            const lineText = document.getElementById('journeyLineText');
-            const route = document.getElementById('journeyRoute');
-            const content = document.getElementById('journeyContent');
-            
-            lineBadge.textContent = line;
-            lineText.textContent = line;
-            route.textContent = `${userPreferences.selectedStationName} → ${destination}`;
-            
-            const transportType = getLineType(line);
-            lineBadge.className = `line-badge ${transportType}`;
-            
-            content.innerHTML = `
-                <div class="journey-loading">
-                    <div class="loading"></div>
-                    <div style="margin-top: 15px;">Lade Fahrtverlauf...</div>
-                </div>
-            `;
-            
-            overlay.style.display = 'block';
-            
-            loadJourneyData(tripId, line, destination);
-        }
-
-        function closeJourneyOverlay() {
-            const overlay = document.getElementById('journeyOverlay');
-            overlay.style.display = 'none';
-        }
-
-        function loadJourneyData(tripId, line, destination) {
-            setTimeout(() => {
-                const mockStops = generateMockStops(userPreferences.selectedStationName, destination, line);
-                renderJourneyStops(mockStops);
-            }, 1000);
-        }
-
-        function generateMockStops(origin, destination, line) {
-            const lineType = getLineType(line);
-            const now = new Date();
-            
-            const stopTemplates = {
-                's-bahn': [origin, 'Berlin Friedrichstraße', 'Berlin Hackescher Markt', 'Berlin Alexanderplatz', 'Berlin Ostkreuz', destination],
-                'regional': [origin, 'Berlin Gesundbrunnen', 'Berlin Ostkreuz', 'Berlin Schönefeld', destination],
-                'metro': [origin, 'Potsdamer Platz', 'Kurfürstendamm', 'Wittenbergplatz', destination],
-                'tram': [origin, 'Hackescher Markt', 'Rosenthaler Platz', 'Bernauer Str.', destination],
-                'bus': [origin, 'Potsdamer Platz', 'Brandenburger Tor', 'Unter den Linden', destination],
-                'default': [origin, 'Zwischenhalt 1', 'Zwischenhalt 2', destination]
-            };
-            
-            const stops = stopTemplates[lineType] || stopTemplates.default;
-            
-            return stops.map((stop, index) => {
-                const time = new Date(now.getTime() + (index * 3 * 60000)); // 3 minutes between stops
-                                const delay = Math.random() > 0.7 ? Math.floor(Math.random() * 5) + 1 : 0;
-                let status = '';
-                
-                if (index === 0) {
-                    status = 'passed';
-                } else if (index === 1) {
-                    status = 'current';
-                } else {
-                    status = '';
-                }
-                
-                return {
-                    name: stop,
-                    platform: Math.floor(Math.random() * 10) + 1,
-                    time: time.toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' }),
-                    delay: delay,
-                    status: status
-                };
-            });
-        }
-
-        function renderJourneyStops(stops) {
-            const content = document.getElementById('journeyContent');
-            
-            const stopsHtml = stops.map(stop => `
-                <div class="journey-stop ${stop.status || ''}">
-                    <div class="journey-stop-connector"></div>
-                    <div class="journey-stop-indicator"></div>
-                    <div class="journey-stop-info">
-                        <div class="journey-stop-name">${stop.name}</div>
-                        ${stop.platform ? `<div class="journey-stop-platform">Gleis ${stop.platform}</div>` : ''}
-                    </div>
-                    <div class="journey-stop-times">
-                        <div class="journey-stop-time">${stop.time}</div>
-                        ${stop.delay !== undefined ? `<div class="journey-stop-delay ${stop.delay > 0 ? 'delayed' : 'on-time'}">${stop.delay > 0 ? `+${stop.delay} min` : 'pünktlich'}</div>` : ''}
-                    </div>
-                </div>
-            `).join('');
-            
-            content.innerHTML = `<div class="journey-stops">${stopsHtml}</div>`;
-        }
-
-        // Scroll event listener for infinite loading
-        function handleScroll() {
-            const container = document.getElementById('dataContainer');
-            const scrollTop = container.scrollTop;
-            const scrollHeight = container.scrollHeight;
-            const clientHeight = container.clientHeight;
-            
-            if (scrollTop + clientHeight >= scrollHeight - 100) {
-                loadMoreData();
-            }
-        }
-
-        // Function to load more data
-        async function loadMoreData() {
-            if (isLoading || !hasMoreData || !currentStationId) return;
-            
-            isLoading = true;
-            const loadingMore = document.getElementById('loadingMore');
-            loadingMore.style.display = 'flex';
-            
-            try {
-                const duration = 360 + (currentData.length * 60);
-                const endpoint = currentMode === 'departures' ? 'departures' : 'arrivals';
-                const apiUrl = `https://v6.vbb.transport.rest/stops/${currentStationId}/${endpoint}?duration=${duration}&results=${currentData.length + 10}&stopovers=false`;
-                
-                debugLog('Loading more data from:', apiUrl);
-                
-                const response = await fetch(apiUrl, {
-                    headers: {
-                        'Accept': 'application/json',
-                        'User-Agent': 'TrainBoard/1.0'
-                    }
-                });
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP Fehler! Status: ${response.status}`);
-                }
-                
-                const data = await response.json();
-                const items = currentMode === 'departures' ? data.departures : data.arrivals;
-                
-                if (items && items.length > currentData.length) {
-                    const newItems = items.slice(currentData.length).filter(item => !shouldFilterItem(item));
-                    const dataList = document.getElementById('data-list');
-                    
-                    newItems.forEach(item => {
-                        const itemElement = createDepartureItem(item);
-                        dataList.appendChild(itemElement);
-                        currentData.push(item);
-                    });
-                    
-                    addDepartureClickHandlers();
-                    
-                    if (newItems.length < 10) {
-                        hasMoreData = false;
-                    }
-                } else {
-                    hasMoreData = false;
-                }
-                
-            } catch (error) {
-                debugLog(`Error loading more ${currentMode}:`, error);
-            }
-            
-            isLoading = false;
-            loadingMore.style.display = 'none';
         }
         
         // Initialize
         window.addEventListener('load', function() {
-            debugLog('Application starting...');
-            
             updateCurrentTime();
             setInterval(updateCurrentTime, 1000);
             
@@ -1786,68 +1637,8 @@
             // Load data with saved preferences
             refreshData();
             
-            const container = document.getElementById('dataContainer');
-            container.addEventListener('scroll', handleScroll, { passive: true });
-            
-            debugLog('App initialized with saved preferences:', savedPreferences);
+            console.log('App initialized with saved preferences:', savedPreferences);
         });
-        
-        // Keyboard shortcuts
-        document.addEventListener('keydown', function(e) {
-            // ESC to close journey overlay
-            if (e.key === 'Escape') {
-                closeJourneyOverlay();
-            }
-            
-            // R to refresh
-            if (e.key === 'r' || e.key === 'R') {
-                if (!e.ctrlKey && !e.metaKey) {
-                    e.preventDefault();
-                    refreshData();
-                }
-            }
-            
-            // Tab to switch between departures/arrivals
-            if (e.key === 'Tab' && !e.ctrlKey && !e.metaKey) {
-                e.preventDefault();
-                const newMode = currentMode === 'departures' ? 'arrivals' : 'departures';
-                switchMode(newMode);
-            }
-        });
-        
-        // Add error handling for uncaught errors
-        window.addEventListener('error', function(e) {
-            debugLog('Uncaught error:', e.error);
-        });
-        
-        window.addEventListener('unhandledrejection', function(e) {
-            debugLog('Unhandled promise rejection:', e.reason);
-        });
-        
-        // Service Worker registration for PWA functionality (optional)
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', function() {
-                // Uncomment to enable service worker
-                // navigator.serviceWorker.register('/sw.js')
-                //   .then(function(registration) {
-                //     debugLog('ServiceWorker registration successful');
-                //   })
-                //   .catch(function(err) {
-                //     debugLog('ServiceWorker registration failed: ', err);
-                //   });
-            });
-        }
-        
-        // Expose functions for debugging
-        if (DEBUG) {
-            window.trainBoard = {
-                refreshData,
-                debugLog,
-                userPreferences,
-                transportFilter,
-                currentData
-            };
-        }
     </script>
 </body>
 </html>
