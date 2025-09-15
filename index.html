@@ -529,10 +529,10 @@
         
         .journey-close {
             background: none;
+            border: none;
             color: white;
             width: 32px;
             height: 32px;
-            border-radius: 50%;
             cursor: pointer;
             font-size: 1.2rem;
             display: flex;
@@ -594,12 +594,12 @@
         .journey-stops::before {
             content: '';
             position: absolute;
-            left: 15px;
+            left: 13px;
             top: 0;
             bottom: 0;
-            width: 2px;
+            width: 6px;
             background: white; /* Fully opaque line */
-            opacity: 1;
+            opacity: 0.3;
         }
         
         .journey-stop {
@@ -625,7 +625,7 @@
         .journey-stop.current {
             background: rgba(255, 255, 255, 0.1);
             border-radius: 8px;
-            margin: 0 -10px;
+            margin: 0 -9px;
             padding: 12px 10px 12px 50px;
         }
         
