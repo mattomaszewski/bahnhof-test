@@ -876,7 +876,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <div class="time-display" id="currentTime">15:09 Uhr</div>
+            <div class="time-display" id="currentTime">15:09</div>
             <div class="station-search-container">
                 <input 
                     type="text" 
@@ -1176,7 +1176,7 @@
                 now.toLocaleTimeString('de-DE', { 
                     hour: '2-digit', 
                     minute: '2-digit' 
-                }) + ' Uhr';
+                });
         }
         
         // Function to format time
@@ -1530,7 +1530,7 @@
                     ${platform ? `<div class="platform-info">${platform}</div>` : ''}
                 </div>
                 <div class="time-info">
-                    <div class="departure-time${timeClass}">${time}<span class="time-suffix">Uhr</span></div>
+                    <div class="departure-time${timeClass}">${time}</div>
                     <div class="delay-info ${delayInfo.class}">${delayInfo.text}</div>
                     ${!isCancelled && minutesUntil > 0 ? `<div class="in-minutes">in ${minutesUntil} Min</div>` : 
                       !isCancelled && minutesUntil === 0 ? `<div class="in-minutes">jetzt</div>` : ''}
